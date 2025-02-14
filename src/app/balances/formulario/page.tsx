@@ -1,9 +1,8 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
   SelectContent,
@@ -11,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { BalanceDiario, CategoriaGasto, Gasto, Venta } from "@/app/types";
+import { BalanceDiario, CategoriaGasto, Gasto } from "@/app/types";
 import {
   Form,
   FormControl,
@@ -21,8 +20,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useFieldArray, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { date, z } from "zod";
 import { Popover } from "@radix-ui/react-popover";
 import { PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CalendarIcon, DollarSignIcon, TrashIcon, CirclePlusIcon } from "lucide-react";
@@ -30,61 +29,121 @@ import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { cn } from "@/utils/cn";
+import { BalanceDiarioSchema } from "./zod";
+import { useEffect } from "react";
+import {
+  getBalanceById,
+  createBalance as createBalanceAPI,
+  updateBalance as updateBalanceAPI,
+} from "@/api/api.products";
 
-type BalanceDiarioFromType = z.infer<typeof BalanceDiario>;
+export default function FormularioBalance() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const balanceId = searchParams.get("id");
 
-const BalanceDiarioSchema = z.object({
-  fecha: z.date(),
-  venta: z.object({
-    efectivo: z.string({ required_error: "El monto es requerido" }).transform((a) => parseFloat(a)),
-    mercado_pago: z
-      .string({ required_error: "El monto es requerido" })
-      .transform((a) => parseFloat(a)),
-    unicobros: z
-      .string({ required_error: "El monto es requerido" })
-      .transform((a) => parseFloat(a)),
-  }),
-  gastos: z.array(
-    z.object({
-      amount: z.string().nonempty("El monto es requerido").transform(parseFloat),
-      category: z.string().nonempty("La categoría es requerida"),
-      description: z.string().optional(),
-    })
-  ),
-});
-
-export default function AddBilling() {
-  const form = useForm<BalanceDiarioFromType>({
+  // Configuracion del formulario
+  const form = useForm<BalanceDiario>({
     resolver: zodResolver(BalanceDiarioSchema),
     defaultValues: {
-      date: new Date(),
-      venta: {},
+      fecha: new Date(),
+      ventas: {},
       gastos: [],
     },
   });
+
+  // Hook para manejar los campos dinámicos de gastos
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "gastos",
   });
 
-  const onSubmit = form.handleSubmit((values: BalanceDiarioFromType) => {
-    console.log(values);
+  // Cargar balance si se recibe un id
+  useEffect(() => {
+    if (balanceId) {
+      getBalanceAndSetForm(balanceId);
+    }
+  }, [balanceId]);
+
+  // Función para cargar el balance y setear el formulario
+  const getBalanceAndSetForm = async (balanceId: string) => {
+    const toastPromise = toast.loading("Cargando balance...");
+    const response = await getBalanceById(balanceId);
+    if (response.ok) {
+      toast.success("Balance cargado correctamente", { id: toastPromise });
+      const balance = await response.json();
+
+      const gastos = balance.gastos.map(({ monto, categoria, descripcion }: Gasto) => ({
+        monto: monto,
+        categoria: Object.values(CategoriaGasto).find((value) => value === categoria),
+        descripcion: descripcion,
+      }));
+
+      form.reset({
+        fecha: new Date(balance.fecha),
+        ventas: {
+          efectivo: balance.ventas.efectivo.toString().replace(",", "."),
+          mercado_pago: balance.ventas.mercado_pago.toString().replace(",", "."),
+          unicobros: balance.ventas.unicobros.toString().replace(",", "."),
+        },
+        gastos: gastos.map((gasto: Gasto) => ({
+          ...gasto,
+          monto: gasto.monto.toString().replace(",", "."),
+        })),
+      });
+    } else {
+      toast.error("Error al cargar el balance", { id: toastPromise });
+    }
+  };
+
+  const onSubmit = form.handleSubmit((values: BalanceDiario) => {
+    if (balanceId) {
+      updateBalance(values);
+    } else {
+      createBalance(values);
+    }
   });
 
-  // console.log(form.watch());
-  // console.log(form.formState.errors);
+  const createBalance = async (values: BalanceDiario) => {
+    const toastPromise = toast.loading("Creando balance...");
+    const response = await createBalanceAPI(values);
+    if (response.ok) {
+      toast.success("Balance creado correctamente", { id: toastPromise });
+      router.push("/balances");
+    } else if (response.status === 400) {
+      toast.error("Error: Ya existe un balance en esta fecha", { id: toastPromise });
+      form.setError("fecha", { message: "Ya existe un balance en esta fecha" });
+    } else {
+      toast.error("Error al crear el balance", { id: toastPromise });
+    }
+  };
+
+  const updateBalance = async (values: BalanceDiario) => {
+    const toastPromise = toast.loading("Actualizando balance...");
+    const response = await updateBalanceAPI(String(balanceId), values);
+    if (response.ok) {
+      toast.success("Balance actualizado correctamente", { id: toastPromise });
+      router.push("/balances");
+    } else if (response.status === 400) {
+      toast.error("Error: Ya existe un balance en esta fecha", { id: toastPromise });
+      form.setError("fecha", { message: "Ya existe un balance en esta fecha" });
+    } else {
+      toast.error("Error al actualizar el balance", { id: toastPromise });
+      console.log(await response.json());
+    }
+  };
 
   return (
     <main className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Agregar Gasto/Ingreso</h1>
+      <h1 className="text-2xl font-bold mb-6">Agregar Balance</h1>
       <Form {...form}>
         <form className="space-y-3 max-w-md mx-auto" onSubmit={onSubmit}>
           <FormField
             control={form.control}
-            name="date"
+            name="fecha"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>Fecha Ingreso / Gasto</FormLabel>
+                <FormLabel>Fecha del balance</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -121,7 +180,7 @@ export default function AddBilling() {
           <div className="space-y-3">
             <h2 className="text-lg font-semibold">Ventas</h2>
             <FormField
-              name="venta.efectivo"
+              name="ventas.efectivo"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
@@ -143,7 +202,7 @@ export default function AddBilling() {
               )}
             />
             <FormField
-              name="venta.mercado_pago"
+              name="ventas.mercado_pago"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
@@ -165,7 +224,7 @@ export default function AddBilling() {
               )}
             />
             <FormField
-              name="venta.unicobros"
+              name="ventas.unicobros"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
@@ -195,7 +254,7 @@ export default function AddBilling() {
               <div key={field.id} className="flex flex-col gap-2">
                 <FormField
                   control={form.control}
-                  name={`gastos.${index}.amount`}
+                  name={`gastos.${index}.monto`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Monto</FormLabel>
@@ -204,7 +263,7 @@ export default function AddBilling() {
                           <DollarSignIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4" />
                           <Input
                             {...field}
-                            id={`gastos.${index}.amount`}
+                            id={`gastos.${index}.monto`}
                             type="number"
                             className="pl-9 w-full"
                             placeholder="0.00"
@@ -217,7 +276,7 @@ export default function AddBilling() {
                 />
                 <FormField
                   control={form.control}
-                  name={`gastos.${index}.category`}
+                  name={`gastos.${index}.categoria`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Categoría</FormLabel>
@@ -241,7 +300,7 @@ export default function AddBilling() {
                 />
                 <FormField
                   control={form.control}
-                  name={`gastos.${index}.description`}
+                  name={`gastos.${index}.descripcion`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Descripción</FormLabel>
@@ -261,7 +320,7 @@ export default function AddBilling() {
               className="w-full"
               type="button"
               variant={"outline"}
-              onClick={() => append({ amount: "", category: "", description: "" })}
+              onClick={() => append({ monto: "", categoria: "", descripcion: "" })}
             >
               <CirclePlusIcon className="mr-2 size-8" />
               Agregar Gasto

@@ -1,12 +1,31 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import admin from "@/lib/firebase/firebaseAdmin";
 // import { validateFirebaseIdToken } from "@/utils/authorizationMiddleware";
 
 const db = admin.firestore();
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+type Params = {
+  params: {
+    id: string;
+  };
+};
+
+async function getParams(request: NextRequest): Promise<string> {
+  // Extrae el ID de la URL
+  const url = new URL(request.url);
+  const pathSegments = url.pathname.split("/");
+  const id = pathSegments[pathSegments.length - 1];
+
+  if (!id) {
+    throw new Error("ID no proporcionado");
+  }
+
+  return id;
+}
+
+export async function GET(request: NextRequest, context: { params: Params["params"] }) {
   try {
-    const balanceId = params.id;
+    const balanceId = await getParams(request);
     const balanceRef = db.collection("balances_diarios").doc(String(balanceId));
     const balance = await balanceRef.get();
 
@@ -28,7 +47,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, context: { params: Params["params"] }) {
   try {
     // const idToken = await validateFirebaseIdToken(request);
     // if (!idToken) {
@@ -36,29 +55,41 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     // }
 
     const body = await request.json();
+    const balanceId = await getParams(request);
 
     if (!body.fecha) {
       return NextResponse.json({ message: "La fecha es requerida" }, { status: 400 });
-    } else if (!body.venta) {
+    } else if (!body.ventas) {
       return NextResponse.json({ message: "La venta es requerida" }, { status: 400 });
     } else if (
-      body.venta.mercado_pago === undefined ||
-      body.venta.efectivo === undefined ||
-      body.venta.unicobros === undefined ||
-      body.venta.mercado_pago <= 0 ||
-      body.venta.efectivo <= 0 ||
-      body.venta.unicobros <= 0
+      body.ventas.mercado_pago === undefined ||
+      body.ventas.efectivo === undefined ||
+      body.ventas.unicobros === undefined ||
+      body.ventas.mercado_pago <= 0 ||
+      body.ventas.efectivo <= 0 ||
+      body.ventas.unicobros <= 0
     ) {
       return NextResponse.json({ message: "La venta es inválida" }, { status: 400 });
     } else if (
-      body.gastos &&
+      Array.isArray(body.gastos) &&
       body.gastos.length > 0 &&
-      body.gastos.some((gasto: any) => gasto.monto <= 0)
+      body.gastos.some((gasto: any) => gasto.monto !== undefined && gasto.monto <= 0)
     ) {
       return NextResponse.json({ message: "Los gastos son inválidos" }, { status: 400 });
     }
 
-    const balanceId = params.id;
+    // Controlar que no exista un balance diario para esa fecha
+    const balanceDiarioDateRef = db.collection("balances_diarios").where("fecha", "==", body.fecha);
+    // .where("id", "!=", String(balanceId));
+    const balanceDiarioDateSnapshot = await balanceDiarioDateRef.get();
+    if (!balanceDiarioDateSnapshot.empty) {
+      if (balanceDiarioDateSnapshot.docs[0].id !== balanceId)
+        return NextResponse.json(
+          { message: "Ya existe un balance diario para esa fecha" },
+          { status: 400 }
+        );
+    }
+
     const balanceRef = db.collection("balances_diarios").doc(String(balanceId));
     const balance = await balanceRef.get();
 
@@ -71,18 +102,18 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     return NextResponse.json({ message: "Balance diario actualizado" }, { status: 200 });
   } catch (e) {
     console.log("Error:", e);
-    return NextResponse.json({ message: "Error al actualizar el balance diario" }, { status: 500 });
+    // return NextResponse.json({ message: "Error al actualizar el balance diario" }, { status: 500 });
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, context: { params: Params["params"] }) {
   try {
     // const idToken = await validateFirebaseIdToken(request);
     // if (!idToken) {
     //   return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
     // }
 
-    const balanceId = params.id;
+    const balanceId = context.params.id;
     const balanceRef = db.collection("balances_diarios").doc(String(balanceId));
     const balance = await balanceRef.get();
 

@@ -1,10 +1,11 @@
 export type BalanceDiario = {
+  id?: number;
   fecha: Date;
-  venta: Venta;
+  ventas: Ventas;
   gastos: Gasto[];
 };
 
-export type Venta = {
+export type Ventas = {
   mercado_pago: number;
   efectivo: number;
   unicobros: number;

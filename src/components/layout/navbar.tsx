@@ -24,12 +24,12 @@ export function Navbar() {
         <SheetContent>
           <div className="flex flex-col space-y-4 mt-4">
             <Link
-              href="/facturacion"
+              href="/balances"
               className="flex items-center space-x-2"
               onClick={() => setIsOpen(false)}
             >
               <FileText size={25} />
-              <span>Facturación</span>
+              <span>Balances</span>
             </Link>
             {/* Aquí puedes agregar más elementos del menú en el futuro */}
           </div>

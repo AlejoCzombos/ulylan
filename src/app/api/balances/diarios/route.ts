@@ -5,32 +5,25 @@ import { id } from "date-fns/locale";
 
 const db = admin.firestore();
 
-export async function GET(
-  request: Request,
-  { params = { page: 0, size: 10 } }: { params: { page: number; size: number } }
-) {
+export async function GET(request: Request) {
   try {
     // const idToken = await validateFirebaseIdToken(request)
     //     if (!idToken) {
     //     return NextResponse.json({ message: 'Unauthorized' }, { status: 403 })
     //     }
 
+    const url = new URL(request.url);
+
+    const page = parseInt(url.searchParams.get("page") || "0");
+    const size = parseInt(url.searchParams.get("size") || "10");
+
     const snapshot = await db
       .collection("balances_diarios")
       .orderBy("fecha")
-      .limit(params.size)
-      .offset(params.page * params.size)
+      .limit(size)
+      .offset(page * size)
       .get();
     const balancesDiarios = snapshot.docs.map((doc) => doc.data());
-
-    // const balances_diarios_response = balances_diarios
-    //   .map((cliente) => ({
-    //     id: cliente.id,
-    //     nombre: cliente.nombre,
-    //     apellido: cliente.apellido,
-    //     puntos: cliente.puntos,
-    //   }))
-    //   .sort((a, b) => a.id - b.id);
 
     return NextResponse.json(balancesDiarios, { status: 200 });
   } catch (e) {
@@ -50,15 +43,15 @@ export async function POST(request: Request) {
 
     if (!body.fecha) {
       return NextResponse.json({ message: "La fecha es requerida" }, { status: 400 });
-    } else if (!body.venta) {
+    } else if (!body.ventas) {
       return NextResponse.json({ message: "La venta es requerida" }, { status: 400 });
     } else if (
-      body.venta.mercado_pago === undefined ||
-      body.venta.efectivo === undefined ||
-      body.venta.unicobros === undefined ||
-      body.venta.mercado_pago <= 0 ||
-      body.venta.efectivo <= 0 ||
-      body.venta.unicobros <= 0
+      body.ventas.mercado_pago === undefined ||
+      body.ventas.efectivo === undefined ||
+      body.ventas.unicobros === undefined ||
+      body.ventas.mercado_pago <= 0 ||
+      body.ventas.efectivo <= 0 ||
+      body.ventas.unicobros <= 0
     ) {
       return NextResponse.json({ message: "La venta es inválida" }, { status: 400 });
     } else if (
@@ -73,6 +66,7 @@ export async function POST(request: Request) {
       ...body,
     };
 
+    // Controlar que no exista un balance diario para esa fecha
     const balanceDiarioDateRef = db.collection("balances_diarios").where("fecha", "==", body.fecha);
     const balanceDiarioDateSnapshot = await balanceDiarioDateRef.get();
     if (!balanceDiarioDateSnapshot.empty) {
