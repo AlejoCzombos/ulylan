@@ -1,11 +1,31 @@
-export type Billing = {
-  description: string;
-  amount: number;
-  type: "ingreso" | "gasto";
-  deposit_category: string;
-  expense_category: string;
-  date: Date;
+export type BalanceDiario = {
+  fecha: Date;
+  venta: Venta;
+  gastos: Gasto[];
 };
 
-const deposit_categories = ["Caja", "Tarjeta", "Mercado Pago"];
-const expense_categories = ["Comida", "Servicios", "Alquiler"];
+export type Venta = {
+  mercado_pago: number;
+  efectivo: number;
+  unicobros: number;
+};
+
+export type Gasto = {
+  monto: number;
+  categoria: CategoriaGasto;
+  descripcion?: string;
+};
+
+export enum CategoriaGasto {
+  Fletes = "Fletes",
+  Tejidos = "Tejidos",
+  Libreria = "Libreria",
+  Limpieza = "Limpieza",
+  AnticiposSueldos = "Anticipos de Sueldos",
+  SueldosExtras = "Sueldos extras",
+  Varios = "Varios",
+  Alquiler = "Alquiler",
+  Impuestos = "Impuestos",
+  CostosFinancieros = "Costos financieros",
+  Telefono = "Telefono",
+}
