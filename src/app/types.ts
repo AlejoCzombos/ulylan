@@ -1,21 +1,28 @@
 export type BalanceDiario = {
   id?: number;
   fecha: Date;
+  turno: Turno;
   ventas: Ventas;
   gastos: Gasto[];
 };
 
 export type Ventas = {
-  mercado_pago: number;
-  efectivo: number;
-  unicobros: number;
+  cantidad: number | undefined;
+  mercado_pago: number | undefined;
+  efectivo: number | undefined;
+  unicobros: number | undefined;
 };
 
 export type Gasto = {
-  monto: number;
+  monto: number | undefined;
   categoria: CategoriaGasto;
   descripcion?: string;
 };
+
+export enum Turno {
+  Mañana = "Mañana",
+  Tarde = "Tarde",
+}
 
 export enum CategoriaGasto {
   Fletes = "Fletes",

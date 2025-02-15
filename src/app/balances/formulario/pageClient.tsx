@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { BalanceDiario, CategoriaGasto, Gasto } from "@/app/types";
+import { BalanceDiario, CategoriaGasto, Gasto, Turno } from "@/app/types";
 import {
   Form,
   FormControl,
@@ -24,7 +24,13 @@ import toast from "react-hot-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Popover } from "@radix-ui/react-popover";
 import { PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, DollarSignIcon, PlusCircleIcon, Trash2Icon } from "lucide-react";
+import {
+  CalendarIcon,
+  DollarSignIcon,
+  PlusCircleIcon,
+  Trash2Icon,
+  ShoppingBasketIcon,
+} from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -37,6 +43,7 @@ import {
   updateBalance as updateBalanceAPI,
 } from "@/api/api.products";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 export default function FormularioBalance({ id }: { id: string }) {
   const router = useRouter();
@@ -47,6 +54,7 @@ export default function FormularioBalance({ id }: { id: string }) {
     resolver: zodResolver(BalanceDiarioSchema),
     defaultValues: {
       fecha: new Date(),
+      turno: Turno.Mañana,
       ventas: {},
       gastos: [],
     },
@@ -75,15 +83,17 @@ export default function FormularioBalance({ id }: { id: string }) {
         }));
 
         form.reset({
-          fecha: new Date(balance.fecha),
+          fecha: new Date(balance.fecha._seconds * 1000),
+          turno: Object.values(Turno).find((value) => value === balance.turno),
           ventas: {
+            cantidad: balance.ventas.cantidad.toString(),
             efectivo: balance.ventas.efectivo.toString().replace(",", "."),
             mercado_pago: balance.ventas.mercado_pago.toString().replace(",", "."),
             unicobros: balance.ventas.unicobros.toString().replace(",", "."),
           },
           gastos: gastos.map((gasto: Gasto) => ({
             ...gasto,
-            monto: gasto.monto.toString().replace(",", "."),
+            monto: gasto.monto?.toString().replace(",", "."),
           })),
         });
       } else {
@@ -128,7 +138,6 @@ export default function FormularioBalance({ id }: { id: string }) {
       form.setError("fecha", { message: "Ya existe un balance en esta fecha" });
     } else {
       toast.error("Error al actualizar el balance", { id: toastPromise });
-      console.log(await response.json());
     }
   };
 
@@ -148,7 +157,7 @@ export default function FormularioBalance({ id }: { id: string }) {
                 name="fecha"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Fecha del balance</FormLabel>
+                    <FormLabel>Fecha del detalle</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -183,11 +192,61 @@ export default function FormularioBalance({ id }: { id: string }) {
                 )}
               />
 
+              <FormField
+                name="turno"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Turno</FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        {...field}
+                        className="flex space-x-4"
+                      >
+                        {(Object.values(Turno) as Array<string>).map((turno) => (
+                          <FormItem key={turno} className="flex items-center space-x-2 space-y-0">
+                            <FormControl>
+                              <RadioGroupItem value={turno} id={turno} />
+                            </FormControl>
+                            <FormLabel htmlFor={turno}>{turno}</FormLabel>
+                          </FormItem>
+                        ))}
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg font-semibold">Ventas</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="ventas.cantidad"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Cantidad de ventas</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <ShoppingBasketIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4" />
+                            <Input
+                              {...field}
+                              id="cantidad"
+                              type="number"
+                              className="pl-9 w-full"
+                              placeholder="0"
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                   {(["efectivo", "mercado_pago", "unicobros"] as const).map((tipo) => (
                     <FormField
                       key={tipo}
@@ -301,7 +360,11 @@ export default function FormularioBalance({ id }: { id: string }) {
                     type="button"
                     variant={"outline"}
                     onClick={() =>
-                      append({ monto: 0, categoria: CategoriaGasto.Varios, descripcion: "" })
+                      append({
+                        monto: undefined,
+                        categoria: CategoriaGasto.Varios,
+                        descripcion: "",
+                      })
                     }
                   >
                     <PlusCircleIcon className="mr-2 h-5 w-5" />

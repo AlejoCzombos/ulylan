@@ -74,11 +74,15 @@ export async function PUT(request: NextRequest) {
     }
 
     // Controlar que no exista un balance diario para esa fecha
-    const balanceDiarioDateRef = db.collection("balances_diarios").where("fecha", "==", body.fecha);
+    const balanceDateRef = db.collection("balances_diarios").where("fecha", "==", body.fecha);
     // .where("id", "!=", String(balanceId));
-    const balanceDiarioDateSnapshot = await balanceDiarioDateRef.get();
-    if (!balanceDiarioDateSnapshot.empty) {
-      if (balanceDiarioDateSnapshot.docs[0].id !== balanceId)
+    const balanceDateSnapshot = await balanceDateRef.get();
+    if (!balanceDateSnapshot.empty) {
+      if (
+        balanceDateSnapshot.docs.some(
+          (doc) => doc.data().turno === body.turno && doc.id !== balanceId
+        )
+      )
         return NextResponse.json(
           { message: "Ya existe un balance diario para esa fecha" },
           { status: 400 }
@@ -92,7 +96,13 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ message: "Balance diario no encontrado" }, { status: 404 });
     }
 
-    await balanceRef.update(body);
+    const balanceData = {
+      ...body,
+      fecha: new Date(body.fecha),
+      actualizadoEl: new Date(),
+    };
+
+    await balanceRef.update(balanceData);
 
     return NextResponse.json({ message: "Balance diario actualizado" }, { status: 200 });
   } catch (e) {

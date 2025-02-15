@@ -8,12 +8,15 @@ export const getBalanceById = async (balanceId: string) => {
   return response;
 };
 
-export const getAllBalances = async (page: number) => {
-  const response = await fetch(`/api/balances/diarios?page=${page}`, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+export const getAllBalances = async (page: number, startDate: Date, endDate: Date) => {
+  const response = await fetch(
+    `/api/balances/diarios?page=${page}&startDate=${startDate}&endDate=${endDate}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   return response;
 };
 

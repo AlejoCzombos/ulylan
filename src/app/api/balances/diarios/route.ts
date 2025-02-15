@@ -16,10 +16,19 @@ export async function GET(request: Request) {
 
     const page = parseInt(url.searchParams.get("page") || "0");
     const size = parseInt(url.searchParams.get("size") || "10");
+    const startDate = url.searchParams.get("startDate") || null;
+    const endDate = url.searchParams.get("endDate") || null;
 
-    const snapshot = await db
-      .collection("balances_diarios")
-      .orderBy("fecha")
+    let query = db.collection("balances_diarios").orderBy("fecha");
+
+    if (startDate) {
+      query = query.where("fecha", ">=", new Date(startDate));
+    }
+    if (endDate) {
+      query = query.where("fecha", "<=", new Date(endDate));
+    }
+
+    const snapshot = await query
       .limit(size)
       .offset(page * size)
       .get();
@@ -57,23 +66,26 @@ export async function POST(request: Request) {
     } else if (
       body.gastos &&
       body.gastos.length > 0 &&
-      body.gastos.some((gasto: Gasto) => gasto.monto <= 0)
+      body.gastos.some((gasto: Gasto) => gasto.monto !== undefined && gasto.monto <= 0)
     ) {
-      return NextResponse.json({ message: "Los gastos son inválidos" }, { status: 400 });
+      return NextResponse.json({ message: "Alguno de los gastos son inválidos" }, { status: 400 });
     }
 
     const balance_diario = {
       ...body,
+      fecha: new Date(body.fecha),
+      creadoEl: new Date(),
     };
 
     // Controlar que no exista un balance diario para esa fecha
-    const balanceDiarioDateRef = db.collection("balances_diarios").where("fecha", "==", body.fecha);
-    const balanceDiarioDateSnapshot = await balanceDiarioDateRef.get();
-    if (!balanceDiarioDateSnapshot.empty) {
-      return NextResponse.json(
-        { message: "Ya existe un balance diario para esa fecha" },
-        { status: 400 }
-      );
+    const balanceDateRef = db.collection("balances_diarios").where("fecha", "==", body.fecha);
+    const balanceDateSnapshot = await balanceDateRef.get();
+    if (!balanceDateSnapshot.empty) {
+      if (balanceDateSnapshot.docs.some((doc) => doc.data().turno === body.turno))
+        return NextResponse.json(
+          { message: "Ya existe un balance diario para esa fecha" },
+          { status: 400 }
+        );
     }
 
     const newBalanceDiarioRef = db.collection("balances_diarios").doc();

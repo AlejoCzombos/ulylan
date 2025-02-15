@@ -42,7 +42,7 @@ export function BalanceDetailModal({ balance, isOpen, onClose }: BalanceDetailMo
         <DialogHeader>
           <DialogTitle>Detalles del Balance Diario</DialogTitle>
           <DialogDescription>
-            Fecha: {format(balance.fecha, "PPP", { locale: es })}
+            Fecha: {format(new Date(balance.fecha._seconds * 1000), "PPP", { locale: es })}
           </DialogDescription>
         </DialogHeader>
         <ScrollArea className="max-h-[60vh] overflow-y-auto pr-4">
