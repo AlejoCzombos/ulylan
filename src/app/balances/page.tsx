@@ -24,6 +24,18 @@ export default function Balances() {
   const [balancesList, setBalancesList] = useState<BalanceDiario[] | null>(null);
 
   useEffect(() => {
+    const fetchAllBalances = async () => {
+      const toastPromise = toast.loading("Cargando balances...");
+      const response = await getAllBalances(currentPage);
+
+      if (response.ok) {
+        toast.dismiss(toastPromise);
+        const data = await response.json();
+        setBalancesList(data);
+      } else {
+        toast.error("Error al cargar balances", { id: toastPromise });
+      }
+    };
     fetchAllBalances();
   }, []);
 
@@ -32,19 +44,6 @@ export default function Balances() {
       setIsLastPage(true);
     }
   }, [balancesList]);
-
-  const fetchAllBalances = async () => {
-    const toastPromise = toast.loading("Cargando balances...");
-    const response = await getAllBalances(currentPage);
-
-    if (response.ok) {
-      toast.dismiss(toastPromise);
-      const data = await response.json();
-      setBalancesList(data);
-    } else {
-      toast.error("Error al cargar balances", { id: toastPromise });
-    }
-  };
 
   const onDeleteBalance = async (id: number) => {
     const newBalancesList: BalanceDiario[] = balancesList

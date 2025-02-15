@@ -1,14 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import admin from "@/lib/firebase/firebaseAdmin";
+import { Gasto } from "@/app/types";
 // import { validateFirebaseIdToken } from "@/utils/authorizationMiddleware";
 
 const db = admin.firestore();
-
-type Params = {
-  params: {
-    id: string;
-  };
-};
 
 async function getParams(request: NextRequest): Promise<string> {
   // Extrae el ID de la URL
@@ -23,7 +18,7 @@ async function getParams(request: NextRequest): Promise<string> {
   return id;
 }
 
-export async function GET(request: NextRequest, context: { params: Params["params"] }) {
+export async function GET(request: NextRequest) {
   try {
     const balanceId = await getParams(request);
     const balanceRef = db.collection("balances_diarios").doc(String(balanceId));
@@ -47,7 +42,7 @@ export async function GET(request: NextRequest, context: { params: Params["param
   }
 }
 
-export async function PUT(request: NextRequest, context: { params: Params["params"] }) {
+export async function PUT(request: NextRequest) {
   try {
     // const idToken = await validateFirebaseIdToken(request);
     // if (!idToken) {
@@ -73,7 +68,7 @@ export async function PUT(request: NextRequest, context: { params: Params["param
     } else if (
       Array.isArray(body.gastos) &&
       body.gastos.length > 0 &&
-      body.gastos.some((gasto: any) => gasto.monto !== undefined && gasto.monto <= 0)
+      body.gastos.some((gasto: Gasto) => gasto.monto !== undefined && gasto.monto <= 0)
     ) {
       return NextResponse.json({ message: "Los gastos son inválidos" }, { status: 400 });
     }
@@ -106,7 +101,7 @@ export async function PUT(request: NextRequest, context: { params: Params["param
   }
 }
 
-export async function DELETE(request: NextRequest, context: { params: Params["params"] }) {
+export async function DELETE(request: NextRequest) {
   try {
     // const idToken = await validateFirebaseIdToken(request);
     // if (!idToken) {

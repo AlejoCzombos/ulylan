@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import admin from "@/lib/firebase/firebaseAdmin";
-import { id } from "date-fns/locale";
+import { Gasto } from "@/app/types";
 // import { validateFirebaseIdToken } from "@/utils/authorizationMiddleware";
 
 const db = admin.firestore();
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
     } else if (
       body.gastos &&
       body.gastos.length > 0 &&
-      body.gastos.some((gasto: any) => gasto.monto <= 0)
+      body.gastos.some((gasto: Gasto) => gasto.monto <= 0)
     ) {
       return NextResponse.json({ message: "Los gastos son inválidos" }, { status: 400 });
     }

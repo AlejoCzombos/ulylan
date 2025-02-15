@@ -17,7 +17,7 @@ export const getAllBalances = async (page: number) => {
   return response;
 };
 
-export const createBalance = async (balanceData: any) => {
+export const createBalance = async (balanceData: object) => {
   const response = await fetch(`/api/balances/diarios`, {
     method: "POST",
     headers: {
@@ -29,7 +29,7 @@ export const createBalance = async (balanceData: any) => {
   return response;
 };
 
-export const updateBalance = async (balanceId: string, balanceData: any) => {
+export const updateBalance = async (balanceId: string, balanceData: object) => {
   const response = await fetch(`/api/balances/diarios/${balanceId}`, {
     method: "PUT",
     headers: {

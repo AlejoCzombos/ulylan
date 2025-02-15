@@ -1,4 +1,3 @@
-import { NextResponse } from "next/server";
 import admin from "@/lib/firebase/firebaseAdmin";
 
 export const validateFirebaseIdToken = async (req: Request) => {
@@ -18,6 +17,7 @@ export const decodedIdToken = async (idToken: string) => {
     const decodedIdToken = await auth.verifyIdToken(idToken);
     return decodedIdToken;
   } catch (error) {
+    console.error("Error verifying token", error);
     throw new Error("Error verifying token");
   }
 };
