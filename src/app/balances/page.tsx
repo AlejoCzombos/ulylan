@@ -16,7 +16,7 @@ import { BalanceDiario } from "../types";
 import toast from "react-hot-toast";
 import { deleteBalance, getAllBalances } from "@/api/api.products";
 
-import { BalanceTable } from "@/components/facturacion/balanceTable";
+import { BalanceTable } from "@/components/facturacion/BalanceTable";
 
 export default function Balances() {
   const [currentPage, setCurrentPage] = useState(0);
