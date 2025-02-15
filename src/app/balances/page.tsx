@@ -3,38 +3,18 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import {
   Pagination,
   PaginationContent,
-  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { FileDown, Plus, Eye, Trash, Edit } from "lucide-react";
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  DialogClose,
-} from "@/components/ui/dialog";
+import { FileDown, Plus } from "lucide-react";
 import { BalanceDiario } from "../types";
 import toast from "react-hot-toast";
-import { getAllBalances } from "@/api/api.products";
+import { deleteBalance, getAllBalances } from "@/api/api.products";
 
 import { BalanceTable } from "@/components/facturacion/BalanceTable";
 
@@ -66,9 +46,17 @@ export default function Balances() {
     }
   };
 
-  const onDeleteBalance = (id: number) => {
-    // Delete balance
-    toast.success("Balance eliminado correctamente");
+  const onDeleteBalance = async (id: number) => {
+    const newBalancesList: BalanceDiario[] = balancesList?.filter((balance) => balance.id !== id);
+    setBalancesList(newBalancesList);
+
+    const response = await deleteBalance(String(id));
+
+    if (response.ok) {
+      toast.success("Balance eliminado correctamente");
+    } else {
+      toast.error("Error al eliminar balance");
+    }
   };
 
   return (

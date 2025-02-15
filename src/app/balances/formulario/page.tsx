@@ -24,7 +24,14 @@ import toast from "react-hot-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Popover } from "@radix-ui/react-popover";
 import { PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, DollarSignIcon, TrashIcon, CirclePlusIcon } from "lucide-react";
+import {
+  CalendarIcon,
+  DollarSignIcon,
+  TrashIcon,
+  CirclePlusIcon,
+  PlusCircleIcon,
+  Trash2Icon,
+} from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -36,6 +43,7 @@ import {
   createBalance as createBalanceAPI,
   updateBalance as updateBalanceAPI,
 } from "@/api/api.products";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function FormularioBalance() {
   const router = useRouter();
@@ -134,204 +142,188 @@ export default function FormularioBalance() {
   };
 
   return (
-    <main className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Agregar Balance</h1>
-      <Form {...form}>
-        <form className="space-y-3 max-w-md mx-auto" onSubmit={onSubmit}>
-          <FormField
-            control={form.control}
-            name="fecha"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>Fecha del balance</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "pl-3 text-left font-normal w-full",
-                          !field.value && "text-muted-foreground"
-                        )}
-                      >
-                        {field.value ? (
-                          format(field.value, "PPP", { locale: es })
-                        ) : (
-                          <span>Elije una fecha</span>
-                        )}
-                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      disabled={(date) => date < new Date("2022-01-01")}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <div className="space-y-3">
-            <h2 className="text-lg font-semibold">Ventas</h2>
-            <FormField
-              name="ventas.efectivo"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Monto Efectivo</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <DollarSignIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4" />
-                      <Input
-                        {...field}
-                        id="efectivo"
-                        type="number"
-                        className="pl-9 w-full"
-                        placeholder="0.00"
-                      />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              name="ventas.mercado_pago"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Monto Mercado Pago</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <DollarSignIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4" />
-                      <Input
-                        {...field}
-                        id="mercado_pago"
-                        type="number"
-                        className="pl-9 w-full"
-                        placeholder="0.00"
-                      />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              name="ventas.unicobros"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Monto Unicobros</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <DollarSignIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4" />
-                      <Input
-                        {...field}
-                        id="unicobros"
-                        type="number"
-                        className="pl-9 w-full"
-                        placeholder="0.00"
-                      />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          {/* Gastos Dinámicos */}
-          <div className="space-y-3">
-            <h2 className="text-lg font-semibold">Gastos</h2>
-            {fields.map((field, index) => (
-              <div key={field.id} className="flex flex-col gap-2">
-                <FormField
-                  control={form.control}
-                  name={`gastos.${index}.monto`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Monto</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <DollarSignIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4" />
-                          <Input
-                            {...field}
-                            id={`gastos.${index}.monto`}
-                            type="number"
-                            className="pl-9 w-full"
-                            placeholder="0.00"
-                          />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`gastos.${index}.categoria`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Categoría</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+    <main className="container mx-auto p-4 max-w-3xl">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold text-center">
+            {balanceId ? "Editar Balance" : "Agregar Balance"}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form className="space-y-6" onSubmit={onSubmit}>
+              <FormField
+                control={form.control}
+                name="fecha"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Fecha del balance</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Categoría" />
-                          </SelectTrigger>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "pl-3 text-left font-normal w-full",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, "PPP", { locale: es })
+                            ) : (
+                              <span>Elije una fecha</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
                         </FormControl>
-                        <SelectContent>
-                          {(Object.values(CategoriaGasto) as Array<string>).map((category) => (
-                            <SelectItem key={category} value={category}>
-                              {category}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`gastos.${index}.descripcion`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Descripción</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="Opcional" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button variant="destructive" onClick={() => remove(index)}>
-                  <TrashIcon className="w-4 h-4" />
-                </Button>
-              </div>
-            ))}
-            <Button
-              className="w-full"
-              type="button"
-              variant={"outline"}
-              onClick={() => append({ monto: "", categoria: "", descripcion: "" })}
-            >
-              <CirclePlusIcon className="mr-2 size-8" />
-              Agregar Gasto
-            </Button>
-          </div>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          disabled={(date) => date < new Date("2022-01-01")}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-          <Button type="submit" className="w-full">
-            Guardar
-          </Button>
-        </form>
-      </Form>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg font-semibold">Ventas</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {["efectivo", "mercado_pago", "unicobros"].map((tipo) => (
+                    <FormField
+                      key={tipo}
+                      name={`ventas.${tipo}`}
+                      control={form.control}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="capitalize">{tipo.replace("_", " ")}</FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <DollarSignIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4" />
+                              <Input
+                                {...field}
+                                id={tipo}
+                                type="number"
+                                className="pl-9 w-full"
+                                placeholder="0.00"
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  ))}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg font-semibold">Gastos</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {fields.map((field, index) => (
+                    <Card key={field.id}>
+                      <CardContent className="pt-6 space-y-4">
+                        <FormField
+                          control={form.control}
+                          name={`gastos.${index}.monto`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Monto</FormLabel>
+                              <FormControl>
+                                <div className="relative">
+                                  <DollarSignIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4" />
+                                  <Input
+                                    {...field}
+                                    id={`gastos.${index}.monto`}
+                                    type="number"
+                                    className="pl-9 w-full"
+                                    placeholder="0.00"
+                                  />
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name={`gastos.${index}.categoria`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Categoría</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Categoría" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {(Object.values(CategoriaGasto) as Array<string>).map(
+                                    (category) => (
+                                      <SelectItem key={category} value={category}>
+                                        {category}
+                                      </SelectItem>
+                                    )
+                                  )}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name={`gastos.${index}.descripcion`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Descripción</FormLabel>
+                              <FormControl>
+                                <Input {...field} placeholder="Opcional" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <Button
+                          variant="destructive"
+                          onClick={() => remove(index)}
+                          className="w-full"
+                        >
+                          <Trash2Icon className="w-4 h-4 mr-2" />
+                          Eliminar Gasto
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
+                  <Button
+                    className="w-full"
+                    type="button"
+                    variant={"outline"}
+                    onClick={() => append({ monto: "", categoria: "", descripcion: "" })}
+                  >
+                    <PlusCircleIcon className="mr-2 h-5 w-5" />
+                    Agregar Gasto
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Button type="submit" className="w-full">
+                {balanceId ? "Actualizar Balance" : "Crear Balance"}
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
     </main>
   );
 }

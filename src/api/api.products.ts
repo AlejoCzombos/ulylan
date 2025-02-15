@@ -41,12 +41,12 @@ export const updateBalance = async (balanceId: string, balanceData: any) => {
   return response;
 };
 
-export const deleteBalance = async (balanceId: string, token: string) => {
+export const deleteBalance = async (balanceId: string) => {
   const response = await fetch(`/api/balances/diarios/${balanceId}`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      // Authorization: `Bearer ${token}`,
     },
   });
   return response;

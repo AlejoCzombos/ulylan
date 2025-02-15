@@ -113,7 +113,7 @@ export async function DELETE(request: NextRequest, context: { params: Params["pa
     //   return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
     // }
 
-    const balanceId = context.params.id;
+    const balanceId = await getParams(request);
     const balanceRef = db.collection("balances_diarios").doc(String(balanceId));
     const balance = await balanceRef.get();
 
