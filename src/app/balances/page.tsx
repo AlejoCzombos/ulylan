@@ -16,7 +16,7 @@ import { BalanceDiario } from "../types";
 import toast from "react-hot-toast";
 import { deleteBalance, getAllBalances } from "@/api/api.products";
 
-import { BalanceTable } from "@/components/facturacion/BalanceTable";
+import { BalanceTable } from "@/components/facturacion/balanceTable";
 
 export default function Balances() {
   const [currentPage, setCurrentPage] = useState(0);
@@ -47,7 +47,9 @@ export default function Balances() {
   };
 
   const onDeleteBalance = async (id: number) => {
-    const newBalancesList: BalanceDiario[] = balancesList?.filter((balance) => balance.id !== id);
+    const newBalancesList: BalanceDiario[] = balancesList
+      ? balancesList.filter((balance) => balance.id !== id)
+      : [];
     setBalancesList(newBalancesList);
 
     const response = await deleteBalance(String(id));
@@ -82,23 +84,15 @@ export default function Balances() {
       <Pagination className="mt-4">
         <PaginationContent>
           <PaginationItem>
-            <PaginationPrevious
-              onClick={() => {
-                if (currentPage > 0) setCurrentPage((prev) => prev - 1);
-              }}
-              disabled={currentPage === 0}
-            />
+            {currentPage > 0 && (
+              <PaginationPrevious onClick={() => setCurrentPage((prev) => prev - 1)} />
+            )}
           </PaginationItem>
           <PaginationItem>
             <PaginationLink isActive={true}>{currentPage + 1}</PaginationLink>
           </PaginationItem>
           <PaginationItem>
-            <PaginationNext
-              onClick={() => {
-                if (!isLastPage) setCurrentPage((prev) => prev + 1);
-              }}
-              disabled={isLastPage}
-            />
+            {!isLastPage && <PaginationNext onClick={() => setCurrentPage((prev) => prev + 1)} />}
           </PaginationItem>
         </PaginationContent>
       </Pagination>

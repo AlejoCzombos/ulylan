@@ -14,7 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { BalanceDetailModal } from "./BalanceDetailModal";
+import { BalanceDetailModal } from "./balanceDetailModal";
 import { BalanceDiario } from "@/app/types";
 import { DeleteBalanceModal } from "./BalanceDeleteModal";
 

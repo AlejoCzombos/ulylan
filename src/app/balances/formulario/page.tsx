@@ -197,10 +197,10 @@ export default function FormularioBalance() {
                   <CardTitle className="text-lg font-semibold">Ventas</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {["efectivo", "mercado_pago", "unicobros"].map((tipo) => (
+                  {(["efectivo", "mercado_pago", "unicobros"] as const).map((tipo) => (
                     <FormField
                       key={tipo}
-                      name={`ventas.${tipo}`}
+                      name={`ventas.${tipo}` as const}
                       control={form.control}
                       render={({ field }) => (
                         <FormItem>
@@ -309,7 +309,9 @@ export default function FormularioBalance() {
                     className="w-full"
                     type="button"
                     variant={"outline"}
-                    onClick={() => append({ monto: "", categoria: "", descripcion: "" })}
+                    onClick={() =>
+                      append({ monto: 0, categoria: CategoriaGasto.Varios, descripcion: "" })
+                    }
                   >
                     <PlusCircleIcon className="mr-2 h-5 w-5" />
                     Agregar Gasto
