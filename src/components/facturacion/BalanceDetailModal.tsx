@@ -1,5 +1,3 @@
-"use client";
-
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import {
@@ -42,7 +40,7 @@ export function BalanceDetailModal({ balance, isOpen, onClose }: BalanceDetailMo
         <DialogHeader>
           <DialogTitle>Detalles del Balance Diario</DialogTitle>
           <DialogDescription>
-            Fecha: {format(new Date(balance.fecha._seconds * 1000), "PPP", { locale: es })}
+            Fecha: {format(balance.fecha, "PPP", { locale: es })} - Turno: {balance.turno}
           </DialogDescription>
         </DialogHeader>
         <ScrollArea className="max-h-[60vh] overflow-y-auto pr-4">
@@ -71,6 +69,10 @@ export function BalanceDetailModal({ balance, isOpen, onClose }: BalanceDetailMo
                       ${balance.ventas.unicobros.toFixed(2)}
                     </TableCell>
                   </TableRow>
+                  <TableRow>
+                    <TableCell>Cantidad de Ventas</TableCell>
+                    <TableCell className="text-right">{balance.ventas.cantidad}</TableCell>
+                  </TableRow>
                 </TableBody>
               </Table>
             </CardContent>
@@ -96,7 +98,7 @@ export function BalanceDetailModal({ balance, isOpen, onClose }: BalanceDetailMo
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {balance.gastos.map((gasto, index) => (
+                  {balance.gastos.map((gasto: Gasto, index) => (
                     <TableRow key={index}>
                       <TableCell>{gasto.categoria}</TableCell>
                       <TableCell>{gasto.descripcion || "-"}</TableCell>

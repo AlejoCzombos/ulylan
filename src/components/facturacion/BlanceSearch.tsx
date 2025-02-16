@@ -22,12 +22,12 @@ export function BalanceSearch({ onSearch }: BalanceSearchProps) {
   const [startDate, setStartDate] = React.useState<Date>();
   const [endDate, setEndDate] = React.useState<Date>();
 
-  const setDate = (date: Date | undefined) => {
-    if (!date) return;
-    const returnDate = new Date(date);
-    returnDate.setHours(0, 0, 0, 0);
-    return returnDate;
-  };
+  // const setDate = (date: Date | undefined) => {
+  //   if (!date) return;
+  //   const returnDate = new Date(date);
+  //   returnDate.setHours(0, 0, 0, 0);
+  //   return returnDate;
+  // };
 
   const handleSearch = () => {
     if (startDate && endDate) {
@@ -49,14 +49,14 @@ export function BalanceSearch({ onSearch }: BalanceSearchProps) {
   };
 
   return (
-    <div className="flex flex-col space-y-4 md:flex-row md:space-x-4 md:space-y-0 mb-6">
-      <div className="flex space-x-2">
+    <div className="flex flex-col space-y-4 mb-6">
+      <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
         <Popover>
           <PopoverTrigger asChild>
             <Button
               variant={"outline"}
               className={cn(
-                "w-[200px] justify-start text-left font-normal",
+                "w-full sm:w-[200px] justify-start text-left font-normal",
                 !startDate && "text-muted-foreground"
               )}
             >
@@ -64,15 +64,8 @@ export function BalanceSearch({ onSearch }: BalanceSearchProps) {
               {startDate ? format(startDate, "PPP", { locale: es }) : <span>Fecha inicial</span>}
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-0">
-            <Calendar
-              mode="single"
-              selected={startDate}
-              onSelect={(value) => {
-                setStartDate(setDate(value));
-              }}
-              initialFocus
-            />
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar mode="single" selected={startDate} onSelect={setStartDate} initialFocus />
           </PopoverContent>
         </Popover>
         <Popover>
@@ -80,7 +73,7 @@ export function BalanceSearch({ onSearch }: BalanceSearchProps) {
             <Button
               variant={"outline"}
               className={cn(
-                "w-[200px] justify-start text-left font-normal",
+                "w-full sm:w-[200px] justify-start text-left font-normal",
                 !endDate && "text-muted-foreground"
               )}
             >
@@ -88,21 +81,14 @@ export function BalanceSearch({ onSearch }: BalanceSearchProps) {
               {endDate ? format(endDate, "PPP", { locale: es }) : <span>Fecha final</span>}
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-0">
-            <Calendar
-              mode="single"
-              selected={endDate}
-              onSelect={(value) => {
-                setEndDate(setDate(value));
-              }}
-              initialFocus
-            />
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar mode="single" selected={endDate} onSelect={setEndDate} initialFocus />
           </PopoverContent>
         </Popover>
       </div>
-      <div className="flex space-x-2">
+      <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
         <Select onValueChange={(value) => handleQuickSelect(Number(value))}>
-          <SelectTrigger className="w-[200px]">
+          <SelectTrigger className="w-full sm:w-[200px]">
             <SelectValue placeholder="Período rápido" />
           </SelectTrigger>
           <SelectContent>
@@ -111,7 +97,9 @@ export function BalanceSearch({ onSearch }: BalanceSearchProps) {
             <SelectItem value="30">Últimos 30 días</SelectItem>
           </SelectContent>
         </Select>
-        <Button onClick={handleSearch}>Buscar</Button>
+        <Button onClick={handleSearch} className="w-full sm:w-auto">
+          Buscar
+        </Button>
       </div>
     </div>
   );

@@ -30,9 +30,13 @@ export async function GET(request: NextRequest) {
 
     const balanceData = balance.data();
 
+    if (!balanceData) {
+      return NextResponse.json({ message: "Datos del balance no encontrados" }, { status: 404 });
+    }
+
     const balanceResponse = {
-      id: balance.id,
       ...balanceData,
+      fecha: new Date(balanceData.fecha._seconds * 1000),
     };
 
     return NextResponse.json(balanceResponse, { status: 200 });

@@ -14,12 +14,13 @@ export async function GET(request: Request) {
 
     const url = new URL(request.url);
 
-    const page = parseInt(url.searchParams.get("page") || "0");
-    const size = parseInt(url.searchParams.get("size") || "10");
+    // const page = parseInt(url.searchParams.get("page") || "0");
+    // const size = parseInt(url.searchParams.get("size") || "10");
+
     const startDate = url.searchParams.get("startDate") || null;
     const endDate = url.searchParams.get("endDate") || null;
 
-    let query = db.collection("balances_diarios").orderBy("fecha");
+    let query = db.collection("balances_diarios").orderBy("fecha", "desc");
 
     if (startDate) {
       query = query.where("fecha", ">=", new Date(startDate));
@@ -29,12 +30,46 @@ export async function GET(request: Request) {
     }
 
     const snapshot = await query
-      .limit(size)
-      .offset(page * size)
+      // .limit(size)
+      // .offset(page * size)
       .get();
     const balancesDiarios = snapshot.docs.map((doc) => doc.data());
 
-    return NextResponse.json(balancesDiarios, { status: 200 });
+    const formattedBalancesDiarios = balancesDiarios.map((balance) => ({
+      ...balance,
+      fecha: new Date(balance.fecha._seconds * 1000),
+    }));
+
+    let total_efectivo = 0;
+    let total_mercado_pago = 0;
+    let total_unicobros = 0;
+    let total_cantidad_ventas = 0;
+    let total_gastos_general = 0;
+
+    balancesDiarios.forEach((balance) => {
+      total_efectivo += balance.ventas.efectivo;
+      total_mercado_pago += balance.ventas.mercado_pago;
+      total_unicobros += balance.ventas.unicobros;
+      total_cantidad_ventas += balance.ventas.cantidad;
+      total_gastos_general += balance.gastos.reduce(
+        (sum: number, gasto: Gasto) => sum + gasto.monto,
+        0
+      );
+    });
+
+    const returnData = {
+      balances: formattedBalancesDiarios,
+      subtotales: {
+        total_efectivo,
+        total_mercado_pago,
+        total_unicobros,
+        total_cantidad_ventas,
+        total_gastos_general,
+        total: total_efectivo + total_mercado_pago + total_unicobros - total_gastos_general,
+      },
+    };
+
+    return NextResponse.json(returnData, { status: 200 });
   } catch (e) {
     console.log("Error:", e);
     return NextResponse.json({ message: "Error al obtener los balances diarios" }, { status: 500 });

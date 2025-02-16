@@ -10,12 +10,13 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
 import { BalanceDetailModal } from "./BalanceDetailModal";
-import { BalanceDiario } from "@/app/types";
+import { BalanceDiario, BalanceDiarioSearch } from "@/app/types";
 import { DeleteBalanceModal } from "./BalanceDeleteModal";
 import {
   Pagination,
@@ -27,7 +28,7 @@ import {
 } from "../ui/pagination";
 
 interface BalanceTableProps {
-  balancesList: BalanceDiario[];
+  balances: BalanceDiarioSearch;
   onDeleteBalance: (id: number) => void;
   currentPage: number;
   setCurrentPage: (page: number) => void;
@@ -35,7 +36,7 @@ interface BalanceTableProps {
 }
 
 export function BalanceTable({
-  balancesList,
+  balances,
   onDeleteBalance,
   currentPage,
   setCurrentPage,
@@ -61,34 +62,44 @@ export function BalanceTable({
 
   return (
     <div className="overflow-x-auto">
-      {balancesList && balancesList.length > 0 && (
+      {balances && balances.balances.length > 0 && (
         <>
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Fecha</TableHead>
+                <TableHead>Turno</TableHead>
                 <TableHead>Efectivo</TableHead>
                 <TableHead>Mercado Pago</TableHead>
                 <TableHead>Unicobros</TableHead>
+                <TableHead>Cantidad de Ventas</TableHead>
                 <TableHead>Gastos</TableHead>
                 <TableHead className="text-right">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {balancesList &&
-                balancesList.map((balance) => (
+              {balances &&
+                balances.balances.map((balance) => (
                   <TableRow
                     key={balance.id}
                     onClick={() => handleRowClick(balance)}
                     className="cursor-pointer hover:bg-muted/50 transition-colors"
                   >
-                    <TableCell>
-                      {format(new Date(balance.fecha._seconds * 1000), "PPP", { locale: es })}
+                    <TableCell className="min-w-28">
+                      {format(balance.fecha, "PPP", { locale: es })}
                     </TableCell>
-                    <TableCell>${balance.ventas.efectivo.toFixed(2)}</TableCell>
-                    <TableCell>${balance.ventas.mercado_pago.toFixed(2)}</TableCell>
-                    <TableCell>${balance.ventas.unicobros.toFixed(2)}</TableCell>
-                    <TableCell>
+                    <TableCell>{balance.turno}</TableCell>
+                    <TableCell className="min-w-20">
+                      ${balance.ventas.efectivo.toFixed(2)}
+                    </TableCell>
+                    <TableCell className="min-w-20">
+                      ${balance.ventas.mercado_pago.toFixed(2)}
+                    </TableCell>
+                    <TableCell className="min-w-20">
+                      ${balance.ventas.unicobros.toFixed(2)}
+                    </TableCell>
+                    <TableCell className="min-w-20">{balance.ventas.cantidad}</TableCell>
+                    <TableCell className="min-w-20">
                       {balance.gastos.length > 0 ? balance.gastos.length + " gastos" : "Sin gastos"}
                     </TableCell>
                     <TableCell className="text-right">
@@ -125,21 +136,32 @@ export function BalanceTable({
                   </TableRow>
                 ))}
             </TableBody>
+            <TableFooter>
+              <TableRow className="font-medium">
+                <TableCell colSpan={2}>Subtotales</TableCell>
+                <TableCell>${balances.subtotales.total_efectivo.toFixed(2)}</TableCell>
+                <TableCell>${balances.subtotales.total_mercado_pago.toFixed(2)}</TableCell>
+                <TableCell>${balances.subtotales.total_unicobros.toFixed(2)}</TableCell>
+                <TableCell>{balances.subtotales.total_cantidad_ventas}</TableCell>
+                <TableCell>${balances.subtotales.total_gastos_general.toFixed(2)}</TableCell>
+                <TableCell className="text-right">
+                  Total: ${balances.subtotales.total.toFixed(2)}
+                </TableCell>
+              </TableRow>
+            </TableFooter>
           </Table>
           <Pagination className="mt-4">
             <PaginationContent>
               <PaginationItem>
                 {currentPage > 0 && (
-                  <PaginationPrevious onClick={() => setCurrentPage((prev) => prev - 1)} />
+                  <PaginationPrevious onClick={() => setCurrentPage(currentPage - 1)} />
                 )}
               </PaginationItem>
               <PaginationItem>
                 <PaginationLink isActive={true}>{currentPage + 1}</PaginationLink>
               </PaginationItem>
               <PaginationItem>
-                {!isLastPage && (
-                  <PaginationNext onClick={() => setCurrentPage((prev) => prev + 1)} />
-                )}
+                {!isLastPage && <PaginationNext onClick={() => setCurrentPage(currentPage + 1)} />}
               </PaginationItem>
             </PaginationContent>
           </Pagination>

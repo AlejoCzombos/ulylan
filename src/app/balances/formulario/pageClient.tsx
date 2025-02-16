@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { BalanceDiario, CategoriaGasto, Gasto, Turno } from "@/app/types";
+import { BalanceDiarioForm, CategoriaGasto, Gasto, Turno } from "@/app/types";
 import {
   Form,
   FormControl,
@@ -50,7 +50,7 @@ export default function FormularioBalance({ id }: { id: string }) {
   const balanceId = id;
 
   // Configuracion del formulario
-  const form = useForm<BalanceDiario>({
+  const form = useForm<BalanceDiarioForm>({
     resolver: zodResolver(BalanceDiarioSchema),
     defaultValues: {
       fecha: new Date(),
@@ -83,7 +83,7 @@ export default function FormularioBalance({ id }: { id: string }) {
         }));
 
         form.reset({
-          fecha: new Date(balance.fecha._seconds * 1000),
+          fecha: new Date(balance.fecha),
           turno: Object.values(Turno).find((value) => value === balance.turno),
           ventas: {
             cantidad: balance.ventas.cantidad.toString(),
@@ -105,7 +105,7 @@ export default function FormularioBalance({ id }: { id: string }) {
     }
   }, [balanceId]);
 
-  const onSubmit = form.handleSubmit((values: BalanceDiario) => {
+  const onSubmit = form.handleSubmit((values: BalanceDiarioForm) => {
     if (balanceId) {
       updateBalance(values);
     } else {
@@ -113,7 +113,7 @@ export default function FormularioBalance({ id }: { id: string }) {
     }
   });
 
-  const createBalance = async (values: BalanceDiario) => {
+  const createBalance = async (values: BalanceDiarioForm) => {
     const toastPromise = toast.loading("Creando balance...");
     const response = await createBalanceAPI(values);
     if (response.ok) {
@@ -127,7 +127,7 @@ export default function FormularioBalance({ id }: { id: string }) {
     }
   };
 
-  const updateBalance = async (values: BalanceDiario) => {
+  const updateBalance = async (values: BalanceDiarioForm) => {
     const toastPromise = toast.loading("Actualizando balance...");
     const response = await updateBalanceAPI(String(balanceId), values);
     if (response.ok) {

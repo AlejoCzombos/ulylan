@@ -7,14 +7,14 @@ export type BalanceDiario = {
 };
 
 export type Ventas = {
-  cantidad: number | undefined;
-  mercado_pago: number | undefined;
-  efectivo: number | undefined;
-  unicobros: number | undefined;
+  cantidad: number;
+  mercado_pago: number;
+  efectivo: number;
+  unicobros: number;
 };
 
 export type Gasto = {
-  monto: number | undefined;
+  monto: number;
   categoria: CategoriaGasto;
   descripcion?: string;
 };
@@ -37,3 +37,38 @@ export enum CategoriaGasto {
   CostosFinancieros = "Costos financieros",
   Telefono = "Telefono",
 }
+
+export type BalanceDiarioSearch = {
+  balances: BalanceDiario[];
+  subtotales: BalanceDiarioSubtotales;
+};
+
+export type BalanceDiarioSubtotales = {
+  total_efectivo: number;
+  total_mercado_pago: number;
+  total_unicobros: number;
+  total_cantidad_ventas: number;
+  total_gastos_general: number;
+  total: number;
+};
+
+export type BalanceDiarioForm = {
+  id?: number;
+  fecha: Date;
+  turno: Turno;
+  ventas: VentasForm;
+  gastos: GastoForm[];
+};
+
+export type VentasForm = {
+  cantidad: number | undefined;
+  mercado_pago: number | undefined;
+  efectivo: number | undefined;
+  unicobros: number | undefined;
+};
+
+export type GastoForm = {
+  monto: number | undefined;
+  categoria: CategoriaGasto;
+  descripcion?: string;
+};

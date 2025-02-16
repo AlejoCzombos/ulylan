@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { FileDown, Plus } from "lucide-react";
-import { BalanceDiario } from "../types";
+import { BalanceDiario, BalanceDiarioSearch } from "../types";
 import toast from "react-hot-toast";
 import { deleteBalance, getAllBalances } from "@/api/api.products";
 
@@ -14,7 +14,7 @@ import { BalanceSearch } from "@/components/facturacion/BlanceSearch";
 export default function Balances() {
   const [currentPage, setCurrentPage] = useState(0);
   const [isLastPage, setIsLastPage] = useState(false);
-  const [balancesList, setBalancesList] = useState<BalanceDiario[] | null>(null);
+  const [balancesList, setBalancesList] = useState<BalanceDiarioSearch | null>(null);
 
   // useEffect(() => {
   //   const fetchAllBalances = async () => {
@@ -33,7 +33,7 @@ export default function Balances() {
   // }, []);
 
   useEffect(() => {
-    if (balancesList && balancesList.length < 10) {
+    if (balancesList && balancesList.balances.length < 10) {
       setIsLastPage(true);
     }
   }, [balancesList]);
@@ -52,10 +52,11 @@ export default function Balances() {
 
   const onDeleteBalance = async (id: number) => {
     const newBalancesList: BalanceDiario[] = balancesList
-      ? balancesList.filter((balance) => balance.id !== id)
+      ? balancesList.balances.filter((balance) => balance.id !== id)
       : [];
-    setBalancesList(newBalancesList);
-
+    setBalancesList((prevState) =>
+      prevState ? { ...prevState, balances: newBalancesList } : null
+    );
     const response = await deleteBalance(String(id));
 
     if (response.ok) {
@@ -81,7 +82,7 @@ export default function Balances() {
       <BalanceSearch onSearch={onSearchBalance} />
       {balancesList && (
         <BalanceTable
-          balancesList={balancesList}
+          balances={balancesList}
           onDeleteBalance={onDeleteBalance}
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}

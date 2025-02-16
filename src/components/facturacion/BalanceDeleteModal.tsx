@@ -35,8 +35,8 @@ export function DeleteBalanceModal({
           <AlertDialogTitle>Eliminar Balance</AlertDialogTitle>
           <AlertDialogDescription>
             ¿Estás seguro que deseas eliminar el balance del{" "}
-            {format(new Date(balance.fecha._seconds * 1000), "PPP", { locale: es })}? Esta acción no
-            se puede deshacer.
+            {format(new Date(balance.fecha), "PPP", { locale: es })}? Esta acción no se puede
+            deshacer.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
