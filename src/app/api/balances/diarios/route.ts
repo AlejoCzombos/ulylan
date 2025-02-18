@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import admin from "@/lib/firebase/firebaseAdmin";
+import admin from "@/utils/firebase/server";
 import { Gasto } from "@/app/types";
 // import { validateFirebaseIdToken } from "@/utils/authorizationMiddleware";
 

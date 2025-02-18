@@ -1,4 +1,4 @@
-import admin from "@/lib/firebase/firebaseAdmin";
+import admin from "@/utils/firebase/server";
 
 export const validateFirebaseIdToken = async (req: Request) => {
   let idToken = req.headers.get("authorization");
