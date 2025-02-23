@@ -38,6 +38,16 @@ export enum CategoriaGasto {
   Telefono = "Telefono",
 }
 
+export type Login = {
+  email: string;
+  password: string;
+};
+
+export type UserCookie = {
+  uid: string;
+  token: string;
+};
+
 export type BalanceDiarioSearch = {
   balances: BalanceDiario[];
   subtotales: BalanceDiarioSubtotales;
