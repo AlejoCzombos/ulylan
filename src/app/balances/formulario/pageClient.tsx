@@ -41,7 +41,7 @@ import {
   getBalanceById,
   createBalance as createBalanceAPI,
   updateBalance as updateBalanceAPI,
-} from "@/api/api.products";
+} from "@/api/api.detalles";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
@@ -120,7 +120,7 @@ export default function FormularioBalance({ id }: { id: string }) {
       toast.success("Balance creado correctamente", { id: toastPromise });
       router.push("/balances");
     } else if (response.status === 400) {
-      toast.error("Error: Ya existe un balance en esta fecha", { id: toastPromise });
+      toast.error("Ya existe un balance en esta fecha", { id: toastPromise });
       form.setError("fecha", { message: "Ya existe un balance en esta fecha" });
     } else {
       toast.error("Error al crear el balance", { id: toastPromise });

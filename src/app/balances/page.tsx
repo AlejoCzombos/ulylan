@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { FileDown, Plus } from "lucide-react";
 import { BalanceDiario, BalanceDiarioSearch } from "../types";
 import toast from "react-hot-toast";
-import { deleteBalance, getAllBalances } from "@/api/api.products";
+import { deleteBalance, getAllBalances } from "@/api/api.detalles";
 
 import { BalanceTable } from "@/components/facturacion/BalanceTable";
 import { BalanceSearch } from "@/components/facturacion/BlanceSearch";

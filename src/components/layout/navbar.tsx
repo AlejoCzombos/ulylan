@@ -54,7 +54,7 @@ export function Navbar({ userCookie }: { userCookie: UserCookie | null }) {
                   logOut();
                 }}
               >
-                Sign Out
+                Cerrar sesión
               </Button>
             </div>
           </SheetContent>

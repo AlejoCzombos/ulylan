@@ -49,58 +49,54 @@ export function BalanceSearch({ onSearch }: BalanceSearchProps) {
   };
 
   return (
-    <div className="flex flex-col space-y-4 mb-6">
-      <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant={"outline"}
-              className={cn(
-                "w-full sm:w-[200px] justify-start text-left font-normal",
-                !startDate && "text-muted-foreground"
-              )}
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {startDate ? format(startDate, "PPP", { locale: es }) : <span>Fecha inicial</span>}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar mode="single" selected={startDate} onSelect={setStartDate} initialFocus />
-          </PopoverContent>
-        </Popover>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant={"outline"}
-              className={cn(
-                "w-full sm:w-[200px] justify-start text-left font-normal",
-                !endDate && "text-muted-foreground"
-              )}
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {endDate ? format(endDate, "PPP", { locale: es }) : <span>Fecha final</span>}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar mode="single" selected={endDate} onSelect={setEndDate} initialFocus />
-          </PopoverContent>
-        </Popover>
-      </div>
-      <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-        <Select onValueChange={(value) => handleQuickSelect(Number(value))}>
-          <SelectTrigger className="w-full sm:w-[200px]">
-            <SelectValue placeholder="Período rápido" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="7">Últimos 7 días</SelectItem>
-            <SelectItem value="15">Últimos 15 días</SelectItem>
-            <SelectItem value="30">Últimos 30 días</SelectItem>
-          </SelectContent>
-        </Select>
-        <Button onClick={handleSearch} className="w-full sm:w-auto">
-          Buscar
-        </Button>
-      </div>
+    <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 mb-6">
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            variant={"outline"}
+            className={cn(
+              "w-full sm:w-[200px] justify-start text-left font-normal",
+              !startDate && "text-muted-foreground"
+            )}
+          >
+            <CalendarIcon className="mr-2 h-4 w-4" />
+            {startDate ? format(startDate, "PPP", { locale: es }) : <span>Fecha inicial</span>}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar mode="single" selected={startDate} onSelect={setStartDate} initialFocus />
+        </PopoverContent>
+      </Popover>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            variant={"outline"}
+            className={cn(
+              "w-full sm:w-[200px] justify-start text-left font-normal",
+              !endDate && "text-muted-foreground"
+            )}
+          >
+            <CalendarIcon className="mr-2 h-4 w-4" />
+            {endDate ? format(endDate, "PPP", { locale: es }) : <span>Fecha final</span>}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar mode="single" selected={endDate} onSelect={setEndDate} initialFocus />
+        </PopoverContent>
+      </Popover>
+      <Select onValueChange={(value) => handleQuickSelect(Number(value))}>
+        <SelectTrigger className="w-full sm:w-[200px]">
+          <SelectValue placeholder="Período rápido" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="7">Últimos 7 días</SelectItem>
+          <SelectItem value="15">Últimos 15 días</SelectItem>
+          <SelectItem value="30">Últimos 30 días</SelectItem>
+        </SelectContent>
+      </Select>
+      <Button onClick={handleSearch} className="w-full sm:w-[200px]">
+        Buscar
+      </Button>
     </div>
   );
 }

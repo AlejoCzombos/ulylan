@@ -1,21 +1,17 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import admin from "@/utils/firebase/server";
 import { Gasto } from "@/app/types";
-// import { validateFirebaseIdToken } from "@/utils/authorizationMiddleware";
+import { validateUserHasAnyRole } from "@/utils/auth/serverMiddleware";
 
 const db = admin.firestore();
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
-    // const idToken = await validateFirebaseIdToken(request)
-    //     if (!idToken) {
-    //     return NextResponse.json({ message: 'Unauthorized' }, { status: 403 })
-    //     }
+    if (!(await validateUserHasAnyRole(request, ["admin"]))) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
+    }
 
     const url = new URL(request.url);
-
-    // const page = parseInt(url.searchParams.get("page") || "0");
-    // const size = parseInt(url.searchParams.get("size") || "10");
 
     const startDate = url.searchParams.get("startDate") || null;
     const endDate = url.searchParams.get("endDate") || null;
@@ -76,12 +72,11 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    // const idToken = await validateFirebaseIdToken(request)
-    // if (!idToken) {
-    //     return NextResponse.json({ message: 'Unauthorized' }, { status: 403 })
-    // }
+    if (!(await validateUserHasAnyRole(request, ["admin", "empleado"]))) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
+    }
 
     const body = await request.json();
 
@@ -106,14 +101,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Alguno de los gastos son inválidos" }, { status: 400 });
     }
 
+    const newFecha = new Date(body.fecha);
+
     const balance_diario = {
       ...body,
-      fecha: new Date(body.fecha),
+      fecha: newFecha,
       creadoEl: new Date(),
     };
 
     // Controlar que no exista un balance diario para esa fecha
-    const balanceDateRef = db.collection("balances_diarios").where("fecha", "==", body.fecha);
+    const balanceDateRef = db.collection("balances_diarios").where("fecha", "==", newFecha);
     const balanceDateSnapshot = await balanceDateRef.get();
     if (!balanceDateSnapshot.empty) {
       if (balanceDateSnapshot.docs.some((doc) => doc.data().turno === body.turno))

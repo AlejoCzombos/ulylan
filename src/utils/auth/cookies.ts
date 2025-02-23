@@ -1,17 +1,33 @@
 "use server";
 
+import { getUserRole } from "@/api/api.usuarios";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 export async function createSession(user: { uid: string; token: string }) {
-  (await cookies()).set("firebase-auth-cookie", JSON.stringify(user), {
+  const response = await getUserRole(user.uid, user.token);
+
+  if (!response.ok) {
+    console.error("Error creating session", response.statusText);
+    return;
+  }
+
+  const data = await response.json();
+
+  const userCookie = {
+    uid: user.uid,
+    token: user.token,
+    role: data.role,
+  };
+
+  (await cookies()).set("firebase-auth-cookie", JSON.stringify(userCookie), {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: true,
     maxAge: 60 * 60 * 24, // One day
     path: "/",
   });
 
-  redirect("/");
+  // redirect("/balances");
 }
 
 export async function removeSession() {
@@ -20,7 +36,7 @@ export async function removeSession() {
   redirect("/login");
 }
 
-export async function getUserCookie() {
+export async function tryGetUserCookie() {
   const session = (await cookies()).get("firebase-auth-cookie")?.value || null;
 
   if (!session) return null;

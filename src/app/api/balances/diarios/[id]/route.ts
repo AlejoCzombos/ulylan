@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import admin from "@/utils/firebase/server";
 import { Gasto } from "@/app/types";
-// import { validateFirebaseIdToken } from "@/utils/authorizationMiddleware";
+import { validateUserHasAnyRole } from "@/utils/auth/serverMiddleware";
 
 const db = admin.firestore();
 
@@ -20,6 +20,10 @@ async function getParams(request: NextRequest): Promise<string> {
 
 export async function GET(request: NextRequest) {
   try {
+    if (!(await validateUserHasAnyRole(request, ["admin"]))) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
+    }
+
     const balanceId = await getParams(request);
     const balanceRef = db.collection("balances_diarios").doc(String(balanceId));
     const balance = await balanceRef.get();
@@ -48,10 +52,9 @@ export async function GET(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    // const idToken = await validateFirebaseIdToken(request);
-    // if (!idToken) {
-    //   return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
-    // }
+    if (!(await validateUserHasAnyRole(request, ["admin"]))) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
+    }
 
     const body = await request.json();
     const balanceId = await getParams(request);
@@ -77,8 +80,10 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ message: "Los gastos son inválidos" }, { status: 400 });
     }
 
+    const newFecha = new Date(body.fecha);
+
     // Controlar que no exista un balance diario para esa fecha
-    const balanceDateRef = db.collection("balances_diarios").where("fecha", "==", body.fecha);
+    const balanceDateRef = db.collection("balances_diarios").where("fecha", "==", newFecha);
     // .where("id", "!=", String(balanceId));
     const balanceDateSnapshot = await balanceDateRef.get();
     if (!balanceDateSnapshot.empty) {
@@ -102,7 +107,7 @@ export async function PUT(request: NextRequest) {
 
     const balanceData = {
       ...body,
-      fecha: new Date(body.fecha),
+      fecha: newFecha,
       actualizadoEl: new Date(),
     };
 
@@ -117,10 +122,9 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    // const idToken = await validateFirebaseIdToken(request);
-    // if (!idToken) {
-    //   return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
-    // }
+    if (!(await validateUserHasAnyRole(request, ["admin"]))) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
+    }
 
     const balanceId = await getParams(request);
     const balanceRef = db.collection("balances_diarios").doc(String(balanceId));

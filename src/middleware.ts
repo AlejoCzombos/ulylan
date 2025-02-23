@@ -1,14 +1,18 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { getUserCookie } from "./utils/auth/cookies";
+import { tryGetUserCookie } from "./utils/auth/cookies";
 
 export async function middleware(request: NextRequest) {
   const url = request.nextUrl.clone();
 
-  const session = await getUserCookie();
+  console.log("Middleware", url.pathname);
 
-  // if (session) console.log("Sesión actual:", JSON.parse(String(session)));
+  const session = await tryGetUserCookie();
 
   const isLoginPage = url.pathname === "/login";
+
+  if (url.pathname.startsWith("/api/usuarios/")) {
+    return NextResponse.next();
+  }
 
   // Si no hay sesión, redirigir al login
   if (!session && !isLoginPage) {
