@@ -18,6 +18,8 @@ import { logOut } from "@/utils/firebase/auth";
 export function Navbar({ userCookie }: { userCookie: UserCookie | null }) {
   const [isOpen, setIsOpen] = useState(false);
   useUserSession(userCookie);
+  const role = userCookie?.role;
+  console.log(role);
 
   return (
     <nav className="flex items-center justify-between p-4 bg-background">
@@ -36,14 +38,26 @@ export function Navbar({ userCookie }: { userCookie: UserCookie | null }) {
           <SheetContent>
             <SheetDescription>Menú</SheetDescription>
             <div className="flex flex-col space-y-4 mt-4">
-              <Link
-                href="/balances"
-                className="flex items-center space-x-2"
-                onClick={() => setIsOpen(false)}
-              >
-                <FileText size={25} />
-                <span>Detalles</span>
-              </Link>
+              {role === "admin" && (
+                <Link
+                  href="/balances"
+                  className="flex items-center space-x-2"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <FileText size={25} />
+                  <span>Detalles</span>
+                </Link>
+              )}
+              {role === "empleado" && (
+                <Link
+                  href="/balances/formulario"
+                  className="flex items-center space-x-2"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <FileText size={25} />
+                  <span>Detalles</span>
+                </Link>
+              )}
               {/* Aquí puedes agregar más elementos del menú en el futuro */}
               <Button
                 // variant="secondary"

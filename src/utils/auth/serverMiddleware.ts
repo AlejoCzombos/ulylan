@@ -67,8 +67,6 @@ export const validateUserHasAnyRole = async (request: NextRequest, roles: string
     return false;
   }
 
-  console.log("UID:", decodeToken.uid);
-
   if (!(await userHasAnyRole(decodeToken.uid, roles))) {
     return false;
   }

@@ -55,7 +55,12 @@ export default function FormularioBalance({ id }: { id: string }) {
     defaultValues: {
       fecha: new Date(),
       turno: Turno.Mañana,
-      ventas: {},
+      ventas: {
+        cantidad: 0,
+        efectivo: 0,
+        mercado_pago: 0,
+        unicobros: 0,
+      },
       gastos: [],
     },
   });
@@ -118,10 +123,10 @@ export default function FormularioBalance({ id }: { id: string }) {
     const response = await createBalanceAPI(values);
     if (response.ok) {
       toast.success("Balance creado correctamente", { id: toastPromise });
-      router.push("/balances");
+      router.push("/");
     } else if (response.status === 400) {
-      toast.error("Ya existe un balance en esta fecha", { id: toastPromise });
-      form.setError("fecha", { message: "Ya existe un balance en esta fecha" });
+      toast.error("Ya existe un balance en esta fecha y turno", { id: toastPromise });
+      form.setError("fecha", { message: "Ya existe un balance en esta fecha y turno" });
     } else {
       toast.error("Error al crear el balance", { id: toastPromise });
     }
@@ -132,10 +137,10 @@ export default function FormularioBalance({ id }: { id: string }) {
     const response = await updateBalanceAPI(String(balanceId), values);
     if (response.ok) {
       toast.success("Balance actualizado correctamente", { id: toastPromise });
-      router.push("/balances");
+      router.push("/");
     } else if (response.status === 400) {
-      toast.error("Error: Ya existe un balance en esta fecha", { id: toastPromise });
-      form.setError("fecha", { message: "Ya existe un balance en esta fecha" });
+      toast.error("Error: Ya existe un balance en esta fecha y turno", { id: toastPromise });
+      form.setError("fecha", { message: "Ya existe un balance en esta fecha y turno" });
     } else {
       toast.error("Error al actualizar el balance", { id: toastPromise });
     }
@@ -240,6 +245,7 @@ export default function FormularioBalance({ id }: { id: string }) {
                               type="number"
                               className="pl-9 w-full"
                               placeholder="0"
+                              value={field.value === 0 ? "" : field.value}
                             />
                           </div>
                         </FormControl>
@@ -264,6 +270,7 @@ export default function FormularioBalance({ id }: { id: string }) {
                                 type="number"
                                 className="pl-9 w-full"
                                 placeholder="0.00"
+                                value={field.value === 0 ? "" : field.value}
                               />
                             </div>
                           </FormControl>
@@ -298,6 +305,7 @@ export default function FormularioBalance({ id }: { id: string }) {
                                     type="number"
                                     className="pl-9 w-full"
                                     placeholder="0.00"
+                                    value={field.value === 0 ? "" : field.value}
                                   />
                                 </div>
                               </FormControl>
@@ -361,7 +369,7 @@ export default function FormularioBalance({ id }: { id: string }) {
                     variant={"outline"}
                     onClick={() =>
                       append({
-                        monto: undefined,
+                        monto: 0,
                         categoria: CategoriaGasto.Varios,
                         descripcion: "",
                       })

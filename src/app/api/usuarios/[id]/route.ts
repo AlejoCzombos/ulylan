@@ -27,11 +27,6 @@ export async function GET(request: NextRequest) {
     }
 
     const userData = user.data();
-    if (userData) {
-      console.log(userData.role);
-    } else {
-      console.log("User data is undefined");
-    }
 
     return NextResponse.json(userData, { status: 200 });
   } catch (e) {

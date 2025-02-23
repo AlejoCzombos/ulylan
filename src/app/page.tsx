@@ -6,12 +6,9 @@ import Link from "next/link";
 export default function Home() {
   return (
     <main className="container mx-auto p-4">
-      <Link href="/balances" passHref>
-        <Button className="mt-4">Ir a Detalles</Button>
+      <Link href="/balances/formulario" passHref>
+        <Button className="w-full lg:max-w-32 mt-4">Crear un Detalle</Button>
       </Link>
-      {/* <Button onClick={logOut} className="mt-4">
-        Cerrar sesión
-      </Button> */}
     </main>
   );
 }

@@ -18,6 +18,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { logInWithEmailAndPassword } from "@/utils/firebase/auth";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -30,6 +31,7 @@ const formSchema = z.object({
 
 export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -42,7 +44,8 @@ export default function LoginPage() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       toast.success("Usuario autenticado");
-      logInWithEmailAndPassword(values);
+      await logInWithEmailAndPassword(values);
+      router.push("/");
     } catch (error) {
       setError("Ocurrió un error al iniciar sesión. Por favor, intenta de nuevo.");
       toast.error("Ocurrió un error al iniciar sesión. Por favor, intenta de nuevo.");

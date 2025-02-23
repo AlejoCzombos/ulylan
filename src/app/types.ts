@@ -46,6 +46,7 @@ export type Login = {
 export type UserCookie = {
   uid: string;
   token: string;
+  role?: string;
 };
 
 export type BalanceDiarioSearch = {
@@ -71,14 +72,14 @@ export type BalanceDiarioForm = {
 };
 
 export type VentasForm = {
-  cantidad: number | undefined;
-  mercado_pago: number | undefined;
-  efectivo: number | undefined;
-  unicobros: number | undefined;
+  cantidad: number;
+  mercado_pago: number;
+  efectivo: number;
+  unicobros: number;
 };
 
 export type GastoForm = {
-  monto: number | undefined;
+  monto: number;
   categoria: CategoriaGasto;
   descripcion?: string;
 };

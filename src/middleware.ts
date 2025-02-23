@@ -1,29 +1,39 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { tryGetUserCookie } from "./utils/auth/cookies";
 
+const PUBLIC_ROUTES = ["/login"];
+const ROLE_BASED_ROUTES: Record<string, string[]> = {
+  "/balances": ["admin"],
+  "/balances/formulario": ["admin", "empleado"],
+};
+
 export async function middleware(request: NextRequest) {
   const url = request.nextUrl.clone();
 
-  console.log("Middleware", url.pathname);
-
   const session = await tryGetUserCookie();
-
-  const isLoginPage = url.pathname === "/login";
 
   if (url.pathname.startsWith("/api/usuarios/")) {
     return NextResponse.next();
   }
 
+  if (PUBLIC_ROUTES.includes(url.pathname)) {
+    return NextResponse.next();
+  }
+
   // Si no hay sesión, redirigir al login
-  if (!session && !isLoginPage) {
+  if (!session) {
     url.pathname = "/login";
     return NextResponse.redirect(url);
   }
+  const userRole = session.role;
 
-  // Si el usuario está autenticado y trata de acceder a /login, redirigirlo a la home
-  if (session && isLoginPage) {
-    url.pathname = "/";
-    return NextResponse.redirect(url);
+  const allowedRoles = ROLE_BASED_ROUTES[url.pathname];
+
+  if (allowedRoles && !allowedRoles.includes(userRole)) {
+    return NextResponse.json(
+      { error: "No tienes permisos para acceder a esta página" },
+      { status: 403 }
+    );
   }
 
   // Si la sesión es válida, continuar con la petición normal
