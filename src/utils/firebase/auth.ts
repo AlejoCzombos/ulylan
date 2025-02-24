@@ -1,3 +1,5 @@
+"use client";
+
 import {
   signInWithEmailAndPassword,
   onAuthStateChanged as _onAuthStateChanged,
@@ -32,8 +34,8 @@ export async function logInWithEmailAndPassword(data: Login) {
 
 export async function logOut() {
   try {
-    await removeSession();
     await auth.signOut();
+    await removeSession();
   } catch (error) {
     console.error("Logout error:", error);
     throw new Error(`Logout error`);
