@@ -41,6 +41,7 @@ export async function GET(request: NextRequest) {
     let total_unicobros = 0;
     let total_cantidad_ventas = 0;
     let total_gastos_general = 0;
+    const total_gastos: Array<{ categoria: string; monto: number }> = [];
 
     balancesDiarios.forEach((balance) => {
       total_efectivo += balance.ventas.efectivo;
@@ -51,6 +52,16 @@ export async function GET(request: NextRequest) {
         (sum: number, gasto: Gasto) => sum + gasto.monto,
         0
       );
+      balance.gastos.forEach((gasto: Gasto) => {
+        const gastoIndex = total_gastos.findIndex(
+          (g) => g.categoria === gasto.categoria
+        );
+        if (gastoIndex !== -1) {
+          total_gastos[gastoIndex].monto += gasto.monto;
+        } else {
+          total_gastos.push({ ...gasto });
+        }
+      });
     });
 
     const returnData = {
@@ -60,6 +71,7 @@ export async function GET(request: NextRequest) {
         total_mercado_pago,
         total_unicobros,
         total_cantidad_ventas,
+        total_gastos,
         total_gastos_general,
         total: total_efectivo + total_mercado_pago + total_unicobros - total_gastos_general,
       },

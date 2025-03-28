@@ -1,3 +1,5 @@
+import { ColumnHeader } from "export-to-csv";
+
 export type BalanceDiario = {
   id?: number;
   fecha: Date;
@@ -60,6 +62,7 @@ export type BalanceDiarioSubtotales = {
   total_unicobros: number;
   total_cantidad_ventas: number;
   total_gastos_general: number;
+  total_gastos: Array<{ categoria: string; monto: number }> | null;
   total: number;
 };
 
@@ -83,3 +86,35 @@ export type GastoForm = {
   categoria: CategoriaGasto;
   descripcion?: string;
 };
+
+export const headers: ColumnHeader[] = [
+  { key: "Fecha", displayLabel: "Fecha" },
+  { key: "Turno", displayLabel: "Turno" },
+  { key: "Cantidad", displayLabel: "Cantidad" },
+  { key: "Mercado Pago", displayLabel: "Mercado Pago" },
+  { key: "Efectivo", displayLabel: "Efectivo" },
+  { key: "Unicobros", displayLabel: "Unicobros" },
+  ...Object.values(CategoriaGasto).flatMap((value) => [
+    { key: value, displayLabel: value },
+    { key: `${value} descripcion`, displayLabel: `${value} Descripción` },
+  ]),
+];
+
+export const toCsvData = (balance: BalanceDiario) => {
+  return {
+    Fecha: balance.fecha,
+    Turno: balance.turno,
+    Ventas: balance.ventas.cantidad,
+    "Mercado Pago": balance.ventas.mercado_pago,
+    Efectivo: balance.ventas.efectivo,
+    Unicobros: balance.ventas.unicobros,
+    ...Object.values(CategoriaGasto).reduce((acc, value) => {
+      const gasto = balance.gastos.find((gasto) => gasto.categoria === value);
+      return {
+        ...acc,
+        [value]: gasto ? gasto.monto : 0,
+        [`${value} descripcion`]: gasto ? gasto.descripcion : "",
+      };
+    }, {}),
+  }
+}

@@ -2,41 +2,53 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import toast from "react-hot-toast";
+
+import { mkConfig, generateCsv, download, CsvOutput } from "export-to-csv";
+
 import { Button } from "@/components/ui/button";
 import { FileDown, Plus } from "lucide-react";
-import { BalanceDiario, BalanceDiarioSearch } from "../types";
-import toast from "react-hot-toast";
-import { deleteBalance, getAllBalances } from "@/api/api.detalles";
 
 import { BalanceTable } from "@/components/facturacion/BalanceTable";
 import { BalanceSearch } from "@/components/facturacion/BlanceSearch";
+import { BalanceDiario, BalanceDiarioSearch, headers, toCsvData } from "../types";
+import { deleteBalance, getAllBalances } from "@/api/api.detalles";
 
 export default function Balances() {
   const [currentPage, setCurrentPage] = useState(0);
   const [isLastPage, setIsLastPage] = useState(false);
   const [balancesList, setBalancesList] = useState<BalanceDiarioSearch | null>(null);
 
-  // useEffect(() => {
-  //   const fetchAllBalances = async () => {
-  //     const toastPromise = toast.loading("Cargando balances...");
-  //     const response = await getAllBalances(currentPage);
-
-  //     if (response.ok) {
-  //       toast.dismiss(toastPromise);
-  //       const data = await response.json();
-  //       setBalancesList(data);
-  //     } else {
-  //       toast.error("Error al cargar balances", { id: toastPromise });
-  //     }
-  //   };
-  //   fetchAllBalances();
-  // }, []);
+  const csvConfig = mkConfig({columnHeaders: headers, useKeysAsHeaders: true, filename: "detalle.csv", fieldSeparator: ";" });
+  const [exportData, setExportData] = useState<CsvOutput | null>(null);
 
   useEffect(() => {
     if (balancesList && balancesList.balances.length < 10) {
       setIsLastPage(true);
+
+      const csvData = balancesList.balances.map((balance) => toCsvData(balance));
+      csvData.push({
+        Fecha: "Subtotal",
+        Turno: "",
+        Ventas: balancesList.subtotales.total_cantidad_ventas,
+        "Mercado Pago": balancesList.subtotales.total_mercado_pago,
+        Efectivo: balancesList.subtotales.total_efectivo,
+        Unicobros: balancesList.subtotales.total_unicobros,
+        ...Object.assign(
+          {},
+          ...(balancesList.subtotales.total_gastos
+            ? balancesList.subtotales.total_gastos.map((gasto) => ({
+                [gasto.categoria]: gasto.monto,
+              }))
+            : [])
+        ),
+      });
+      // @ts-expect-error no se que poner aca
+      const csv = generateCsv(csvConfig)(csvData);
+      setExportData(csv)
     }
-  }, [balancesList]);
+    
+  }, [balancesList, csvConfig]);
 
   const onSearchBalance = async (startDate: Date, endDate: Date) => {
     const toastPromise = toast.loading("Buscando balances...");
@@ -66,13 +78,23 @@ export default function Balances() {
     }
   };
 
+  const OnClickExport = () => {
+    if (!exportData) return;
+    download(csvConfig)(exportData)
+  }
+
   return (
     <main className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Detalles diarios</h1>
       <div className="flex flex-col sm:flex-row justify-between mb-4 gap-4">
-        <Button variant="outline" className="w-full sm:w-auto">
-          <FileDown className="mr-2 size-7" /> Exportar a Excel
-        </Button>
+        
+        {
+          balancesList && (
+            <Button variant="outline" className="w-full sm:w-auto" onClick={OnClickExport}>
+              <FileDown className="mr-2 size-7" />Exportar a Excel
+            </Button>
+          )
+        }
         <Link href="/balances/formulario" className="w-full sm:w-auto">
           <Button className="w-full sm:w-auto">
             <Plus className="mr-2 size-7" /> Nuevo Detalle
