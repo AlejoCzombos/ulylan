@@ -28,7 +28,8 @@ export async function logInWithEmailAndPassword(data: Login) {
 
     return result.user.uid;
   } catch (error) {
-    console.error("Error iniciando sesión", error);
+    throw new Error(`Error al iniciar sesión: ${error instanceof Error ? error.message : "Unknown error"}`);
+    //console.error("Error iniciando sesión", error);
   }
 }
 
@@ -37,7 +38,7 @@ export async function logOut() {
     await auth.signOut();
     await removeSession();
   } catch (error) {
-    console.error("Logout error:", error);
     throw new Error(`Logout error`);
+    console.error("Logout error:", error);
   }
 }

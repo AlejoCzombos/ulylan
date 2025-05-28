@@ -19,7 +19,7 @@ export default function Balances() {
   const [isLastPage, setIsLastPage] = useState(false);
   const [balancesList, setBalancesList] = useState<BalanceDiarioSearch | null>(null);
 
-  const csvConfig = mkConfig({columnHeaders: headers, useKeysAsHeaders: true, filename: "detalle.csv", fieldSeparator: ";" });
+  const csvConfig = mkConfig({columnHeaders: headers, useKeysAsHeaders: true, filename: "detalle", fieldSeparator: ";" });
   const [exportData, setExportData] = useState<CsvOutput | null>(null);
 
   useEffect(() => {

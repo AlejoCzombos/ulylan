@@ -42,14 +42,16 @@ export default function LoginPage() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    const loginToast = toast.loading("Iniciando sesión...");
     try {
-      toast.success("Usuario autenticado");
       await logInWithEmailAndPassword(values);
+      toast.success("Usuario autenticado", {id: loginToast});
       router.push("/");
     } catch (error) {
       setError("Ocurrió un error al iniciar sesión. Por favor, intenta de nuevo.");
-      toast.error("Ocurrió un error al iniciar sesión. Por favor, intenta de nuevo.");
-      console.error("Ocurrió un error al iniciar sesión", error);
+      toast.error("Ocurrió un error al iniciar sesión. Por favor, intenta de nuevo.", {id: loginToast});
+      throw error;
+      //console.error("Ocurrió un error al iniciar sesión", error);
     }
   }
 

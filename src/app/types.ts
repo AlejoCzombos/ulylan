@@ -38,6 +38,8 @@ export enum CategoriaGasto {
   Impuestos = "Impuestos",
   CostosFinancieros = "Costos financieros",
   Telefono = "Telefono",
+  RetirosPersonales = "Retiros personales",
+  Cafeteria = "Cafeteria",
 }
 
 export type Login = {
