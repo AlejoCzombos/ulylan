@@ -19,11 +19,20 @@ export default function Balances() {
   const [isLastPage, setIsLastPage] = useState(false);
   const [balancesList, setBalancesList] = useState<BalanceDiarioSearch | null>(null);
 
-  const csvConfig = mkConfig({columnHeaders: headers, useKeysAsHeaders: true, filename: "detalle", fieldSeparator: ";" });
+  const [csvConfig, setCsvConfig] = useState(() =>
+    mkConfig({
+      columnHeaders: headers,
+      useKeysAsHeaders: true,
+      filename: `Detalle ${new Date().toLocaleDateString()}`,
+      fieldSeparator: ";",
+      title: `Detalle ${new Date().toLocaleDateString()}`,
+    })
+  );
   const [exportData, setExportData] = useState<CsvOutput | null>(null);
 
   useEffect(() => {
-    if (balancesList && balancesList.balances.length < 10) {
+    //if (balancesList && balancesList.balances.length < 10) {
+    if (balancesList) {
       setIsLastPage(true);
 
       const csvData = balancesList.balances.map((balance) => toCsvData(balance));
@@ -57,6 +66,16 @@ export default function Balances() {
       toast.dismiss(toastPromise);
       const data = await response.json();
       setBalancesList(data);
+
+      setCsvConfig(
+        mkConfig({
+          columnHeaders: headers,
+          useKeysAsHeaders: true,
+          filename: `Detalle ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`,
+          fieldSeparator: ";",
+          title: `Detalle ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`,
+        })
+      );
     } else {
       toast.error("Error al buscar balances", { id: toastPromise });
     }
@@ -79,7 +98,10 @@ export default function Balances() {
   };
 
   const OnClickExport = () => {
-    if (!exportData) return;
+    if (!exportData) {
+      toast.error("No hay datos para exportar");
+      return;
+    }
     download(csvConfig)(exportData)
   }
 

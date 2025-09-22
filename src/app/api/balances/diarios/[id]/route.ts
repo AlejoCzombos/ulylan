@@ -80,10 +80,10 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ message: "Los gastos son inválidos" }, { status: 400 });
     }
 
-    const newFecha = new Date(body.fecha);
+    const fecha = new Date(body.fecha);
 
     // Controlar que no exista un balance diario para esa fecha
-    const balanceDateRef = db.collection("balances_diarios").where("fecha", "==", newFecha);
+    const balanceDateRef = db.collection("balances_diarios").where("fecha", "==", fecha);
     // .where("id", "!=", String(balanceId));
     const balanceDateSnapshot = await balanceDateRef.get();
     if (!balanceDateSnapshot.empty) {
@@ -107,7 +107,7 @@ export async function PUT(request: NextRequest) {
 
     const balanceData = {
       ...body,
-      fecha: newFecha,
+      fecha: fecha,
       actualizadoEl: new Date(),
     };
 

@@ -55,7 +55,7 @@ export function BalanceSearch({ onSearch }: BalanceSearchProps) {
           <Button
             variant={"outline"}
             className={cn(
-              "w-full sm:w-[200px] justify-start text-left font-normal",
+              "w-full sm:w-[220px] justify-start text-left font-normal",
               !startDate && "text-muted-foreground"
             )}
           >
@@ -72,7 +72,7 @@ export function BalanceSearch({ onSearch }: BalanceSearchProps) {
           <Button
             variant={"outline"}
             className={cn(
-              "w-full sm:w-[200px] justify-start text-left font-normal",
+              "w-full sm:w-[220px] justify-start text-left font-normal",
               !endDate && "text-muted-foreground"
             )}
           >
