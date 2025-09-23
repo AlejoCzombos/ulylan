@@ -113,6 +113,23 @@ export async function PUT(request: NextRequest) {
 
     await balanceRef.update(balanceData);
 
+    const updatedBalance = await balanceRef.get();
+
+    if (!updatedBalance.exists) {
+      return NextResponse.json({ message: "Error al obtener el balance actualizado" }, { status: 500 });
+    }
+
+    // Auditar el cambio en el balance diario
+    const auditData = {
+      fecha: new Date(),
+      balanceId: String(balanceId),
+      original: balance.data(),
+      cambios: balanceData,
+    };
+
+    const auditRef = db.collection("auditoria_balances_diarios").doc();
+    await auditRef.set({ ...auditData, id: auditRef.id });
+
     return NextResponse.json({ message: "Balance diario actualizado" }, { status: 200 });
   } catch (e) {
     console.log("Error:", e);
