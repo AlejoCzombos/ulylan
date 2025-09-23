@@ -18,29 +18,29 @@ import {
 import { BalanceDetailModal } from "./BalanceDetailModal";
 import { BalanceDiario, BalanceDiarioSearch } from "@/app/types";
 import { DeleteBalanceModal } from "./BalanceDeleteModal";
-import {
+/* import {
   Pagination,
   PaginationContent,
   PaginationItem,
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "../ui/pagination";
+} from "../ui/pagination"; */
 
 interface BalanceTableProps {
   balances: BalanceDiarioSearch;
   onDeleteBalance: (id: number) => void;
-  currentPage: number;
-  setCurrentPage: (page: number) => void;
-  isLastPage: boolean;
+  //currentPage: number;
+  //setCurrentPage: (page: number) => void;
+  //isLastPage: boolean;
 }
 
 export function BalanceTable({
   balances,
   onDeleteBalance,
-  currentPage,
-  setCurrentPage,
-  isLastPage,
+  //currentPage,
+  //setCurrentPage,
+  //isLastPage,
 }: BalanceTableProps) {
   const [selectedBalance, setSelectedBalance] = useState<BalanceDiario | null>(null);
   const [balanceToDelete, setBalanceToDelete] = useState<BalanceDiario | null>(null);
@@ -150,7 +150,7 @@ export function BalanceTable({
               </TableRow>
             </TableFooter>
           </Table>
-          <Pagination className="mt-4">
+          {/*<Pagination className="mt-4">
             <PaginationContent>
               <PaginationItem>
                 {currentPage > 0 && (
@@ -164,7 +164,7 @@ export function BalanceTable({
                 {!isLastPage && <PaginationNext onClick={() => setCurrentPage(currentPage + 1)} />}
               </PaginationItem>
             </PaginationContent>
-          </Pagination>
+          </Pagination>*/}
         </>
       )}
       {selectedBalance && (

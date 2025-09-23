@@ -15,8 +15,8 @@ import { BalanceDiario, BalanceDiarioSearch, headers, toCsvData } from "../types
 import { deleteBalance, getAllBalances } from "@/api/api.detalles";
 
 export default function Balances() {
-  const [currentPage, setCurrentPage] = useState(0);
-  const [isLastPage, setIsLastPage] = useState(false);
+  //const [currentPage, setCurrentPage] = useState(0);
+  //const [isLastPage, setIsLastPage] = useState(false);
   const [balancesList, setBalancesList] = useState<BalanceDiarioSearch | null>(null);
 
   const [csvConfig, setCsvConfig] = useState(() =>
@@ -33,7 +33,7 @@ export default function Balances() {
   useEffect(() => {
     //if (balancesList && balancesList.balances.length < 10) {
     if (balancesList) {
-      setIsLastPage(true);
+      //setIsLastPage(true);
 
       const csvData = balancesList.balances.map((balance) => toCsvData(balance));
       csvData.push({
@@ -61,7 +61,7 @@ export default function Balances() {
 
   const onSearchBalance = async (startDate: Date, endDate: Date) => {
     const toastPromise = toast.loading("Buscando balances...");
-    const response = await getAllBalances(currentPage, startDate, endDate);
+    const response = await getAllBalances(0, startDate, endDate);
     if (response.ok) {
       toast.dismiss(toastPromise);
       const data = await response.json();
@@ -128,9 +128,9 @@ export default function Balances() {
         <BalanceTable
           balances={balancesList}
           onDeleteBalance={onDeleteBalance}
-          currentPage={currentPage}
-          setCurrentPage={setCurrentPage}
-          isLastPage={isLastPage}
+          //currentPage={currentPage}
+          //setCurrentPage={setCurrentPage}
+          //isLastPage={isLastPage}
         />
       )}
     </main>
