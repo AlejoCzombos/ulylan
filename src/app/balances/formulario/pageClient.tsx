@@ -92,13 +92,13 @@ export default function FormularioBalance({ id }: { id: string }) {
           turno: Object.values(Turno).find((value) => value === balance.turno),
           ventas: {
             cantidad: balance.ventas.cantidad.toString(),
-            efectivo: balance.ventas.efectivo.toString().replace(",", "."),
-            mercado_pago: balance.ventas.mercado_pago.toString().replace(",", "."),
-            unicobros: balance.ventas.unicobros.toString().replace(",", "."),
+            efectivo: balance.ventas.efectivo.toString(),
+            mercado_pago: balance.ventas.mercado_pago.toString(),
+            unicobros: balance.ventas.unicobros.toString(),
           },
           gastos: gastos.map((gasto: Gasto) => ({
             ...gasto,
-            monto: gasto.monto?.toString().replace(",", "."),
+            monto: gasto.monto.toString(),
           })),
         });
       } else {
@@ -134,6 +134,7 @@ export default function FormularioBalance({ id }: { id: string }) {
 
   const updateBalance = async (values: BalanceDiarioForm) => {
     const toastPromise = toast.loading("Actualizando balance...");
+
     const response = await updateBalanceAPI(String(balanceId), values);
     if (response.ok) {
       toast.success("Balance actualizado correctamente", { id: toastPromise });
@@ -245,7 +246,6 @@ export default function FormularioBalance({ id }: { id: string }) {
                               type="number"
                               className="pl-9 w-full"
                               placeholder="0"
-                              value={field.value === 0 ? "" : field.value}
                             />
                           </div>
                         </FormControl>
@@ -270,7 +270,6 @@ export default function FormularioBalance({ id }: { id: string }) {
                                 type="number"
                                 className="pl-9 w-full"
                                 placeholder="0.00"
-                                value={field.value === 0 ? "" : field.value}
                               />
                             </div>
                           </FormControl>
@@ -305,7 +304,6 @@ export default function FormularioBalance({ id }: { id: string }) {
                                     type="number"
                                     className="pl-9 w-full"
                                     placeholder="0.00"
-                                    value={field.value === 0 ? "" : field.value}
                                   />
                                 </div>
                               </FormControl>

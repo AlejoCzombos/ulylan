@@ -15,9 +15,18 @@ export const BalanceDiarioSchema = z.object({
     cantidad: z
       .string({ required_error: "La cantidad es requerida" })
       .transform((a) => parseInt(a)),
-    efectivo: z.string({ required_error: "El monto es requerido" }).transform(parseFloat),
-    mercado_pago: z.string({ required_error: "El monto es requerido" }).transform(parseFloat),
-    unicobros: z.string({ required_error: "El monto es requerido" }).transform(parseFloat),
+    efectivo: z.string({ required_error: "El monto es requerido" }).transform((val) => {
+      const num = parseFloat(val.replace(",", "."));
+      return Math.round(num * 100) / 100; // Round to 2 decimal places to avoid floating point issues
+    }),
+    mercado_pago: z.string({ required_error: "El monto es requerido" }).transform((val) => {
+      const num = parseFloat(val.replace(",", "."));
+      return Math.round(num * 100) / 100;
+    }),
+    unicobros: z.string({ required_error: "El monto es requerido" }).transform((val) => {
+      const num = parseFloat(val.replace(",", "."));
+      return Math.round(num * 100) / 100;
+    }),
   }),
   gastos: z.array(
     z.object({
@@ -30,3 +39,4 @@ export const BalanceDiarioSchema = z.object({
     })
   ),
 });
+
