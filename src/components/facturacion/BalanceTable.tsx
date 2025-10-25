@@ -69,11 +69,12 @@ export function BalanceTable({
               <TableRow>
                 <TableHead>Fecha</TableHead>
                 <TableHead>Turno</TableHead>
-                <TableHead>Efectivo</TableHead>
+                <TableHead>Retiro Efectivo</TableHead>
+                <TableHead>Ventas Efectivo</TableHead>
                 <TableHead>Mercado Pago</TableHead>
                 <TableHead>Unicobros</TableHead>
-                <TableHead>Cantidad de Ventas</TableHead>
                 <TableHead>Gastos</TableHead>
+                <TableHead>Cantidad de Ventas</TableHead>
                 <TableHead className="text-right">Acciones</TableHead>
               </TableRow>
             </TableHeader>
@@ -93,15 +94,18 @@ export function BalanceTable({
                       ${balance.ventas.efectivo.toFixed(2)}
                     </TableCell>
                     <TableCell className="min-w-20">
+                      ${(balance.ventas.efectivo - balance.gastos.reduce((acc, gasto) => acc + gasto.monto, 0)).toFixed(2)}
+                    </TableCell>
+                    <TableCell className="min-w-20">
                       ${balance.ventas.mercado_pago.toFixed(2)}
                     </TableCell>
                     <TableCell className="min-w-20">
                       ${balance.ventas.unicobros.toFixed(2)}
                     </TableCell>
-                    <TableCell className="min-w-20">{balance.ventas.cantidad}</TableCell>
                     <TableCell className="min-w-20">
-                      {balance.gastos.length > 0 ? balance.gastos.length + " gastos" : "Sin gastos"}
+                      ${balance.gastos.reduce((acc, gasto) => acc + gasto.monto, 0).toFixed(2)}
                     </TableCell>
+                    <TableCell className="min-w-20">{balance.ventas.cantidad}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2" onClick={(e) => e.stopPropagation()}>
                         <Link href={`/balances/formulario?id=${balance.id}`} passHref>

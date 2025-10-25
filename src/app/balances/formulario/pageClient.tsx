@@ -244,6 +244,8 @@ export default function FormularioBalance({ id }: { id: string }) {
                               {...field}
                               id="cantidad"
                               type="number"
+                              inputMode="numeric"
+                              style={{ WebkitAppearance: "textfield", MozAppearance: "textfield", appearance: "textfield" }}
                               className="pl-9 w-full"
                               placeholder="0"
                             />
@@ -260,7 +262,7 @@ export default function FormularioBalance({ id }: { id: string }) {
                       control={form.control}
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="capitalize">{tipo.replace("_", " ")}</FormLabel>
+                          <FormLabel className="capitalize">{tipo === "efectivo" ? "Retiro Efectivo" : tipo.replace("_", " ")}</FormLabel>
                           <FormControl>
                             <div className="relative">
                               <DollarSignIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4" />

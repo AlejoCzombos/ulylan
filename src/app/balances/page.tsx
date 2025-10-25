@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { format } from "date-fns";
 import toast from "react-hot-toast";
 
 import { mkConfig, generateCsv, download, CsvOutput } from "export-to-csv";
@@ -13,6 +14,7 @@ import { BalanceTable } from "@/components/facturacion/BalanceTable";
 import { BalanceSearch } from "@/components/facturacion/BlanceSearch";
 import { BalanceDiario, BalanceDiarioSearch, headers, toCsvData } from "../types";
 import { deleteBalance, getAllBalances } from "@/api/api.detalles";
+import { es } from "date-fns/locale";
 
 export default function Balances() {
   //const [currentPage, setCurrentPage] = useState(0);
@@ -40,8 +42,9 @@ export default function Balances() {
         Fecha: "Subtotal",
         Turno: "",
         Ventas: balancesList.subtotales.total_cantidad_ventas,
+        "Retiro Efectivo": balancesList.subtotales.total_efectivo,
+        "Ventas Efectivo": balancesList.subtotales.total_efectivo + balancesList.subtotales.total_gastos_general,
         "Mercado Pago": balancesList.subtotales.total_mercado_pago,
-        Efectivo: balancesList.subtotales.total_efectivo,
         Unicobros: balancesList.subtotales.total_unicobros,
         ...Object.assign(
           {},
@@ -52,9 +55,8 @@ export default function Balances() {
             : [])
         ),
       });
-      // @ts-expect-error no se que poner aca
       const csv = generateCsv(csvConfig)(csvData);
-      setExportData(csv)
+      setExportData(csv);
     }
     
   }, [balancesList, csvConfig]);
@@ -71,9 +73,9 @@ export default function Balances() {
         mkConfig({
           columnHeaders: headers,
           useKeysAsHeaders: true,
-          filename: `Detalle ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`,
+          filename: `Detalle ${format(startDate, "PPP", { locale: es })} - ${format(endDate, "PPP", { locale: es })}`,
           fieldSeparator: ";",
-          title: `Detalle ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`,
+          title: `Detalle ${format(startDate, "PPP", { locale: es })} - ${format(endDate, "PPP", { locale: es })}`,
         })
       );
     } else {
