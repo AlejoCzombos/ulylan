@@ -1,5 +1,4 @@
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
 import { ColumnHeader } from "export-to-csv";
 
 export type BalanceDiario = {
@@ -103,7 +102,7 @@ export const headers: ColumnHeader[] = [
 
 export const toCsvData = (balance: BalanceDiario) => {
   return {
-    Fecha: format(balance.fecha, "PPP", { locale: es }),
+    Fecha: format(balance.fecha, "dd/MM/yyyy"),
     Turno: balance.turno,
     Ventas: balance.ventas.cantidad,
     "Mercado Pago": balance.ventas.mercado_pago,

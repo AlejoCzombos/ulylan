@@ -14,7 +14,6 @@ import { BalanceTable } from "@/components/facturacion/BalanceTable";
 import { BalanceSearch } from "@/components/facturacion/BlanceSearch";
 import { BalanceDiario, BalanceDiarioSearch, headers, toCsvData } from "../types";
 import { deleteBalance, getAllBalances } from "@/api/api.detalles";
-import { es } from "date-fns/locale";
 
 export default function Balances() {
   //const [currentPage, setCurrentPage] = useState(0);
@@ -73,9 +72,9 @@ export default function Balances() {
         mkConfig({
           columnHeaders: headers,
           useKeysAsHeaders: true,
-          filename: `Detalle ${format(startDate, "PPP", { locale: es })} - ${format(endDate, "PPP", { locale: es })}`,
+          filename: `Detalle ${format(startDate, "dd-MM-yyyy")} - ${format(endDate, "dd-MM-yyyy")}`,
           fieldSeparator: ";",
-          title: `Detalle ${format(startDate, "PPP", { locale: es })} - ${format(endDate, "PPP", { locale: es })}`,
+          title: `Detalle ${format(startDate, "dd-MM-yyyy")} - ${format(endDate, "dd-MM-yyyy")}`,
         })
       );
     } else {
