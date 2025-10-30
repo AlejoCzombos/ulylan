@@ -94,7 +94,7 @@ export function BalanceTable({
                       ${balance.ventas.efectivo.toFixed(2)}
                     </TableCell>
                     <TableCell className="min-w-20">
-                      ${(balance.ventas.efectivo - balance.gastos.reduce((acc, gasto) => acc + gasto.monto, 0)).toFixed(2)}
+                      ${(balance.ventas.efectivo + balance.gastos.reduce((acc, gasto) => acc + gasto.monto, 0)).toFixed(2)}
                     </TableCell>
                     <TableCell className="min-w-20">
                       ${balance.ventas.mercado_pago.toFixed(2)}
